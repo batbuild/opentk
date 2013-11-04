@@ -70,7 +70,9 @@ namespace OpenTK.Platform.Windows
         WindowState windowState = WindowState.Normal;
         bool borderless_maximized_window_state = false; // Hack to get maximized mode with hidden border (not normally possible).
         bool focused;
+		bool cursor_visible = true;
         bool mouse_outside_window = true;
+        Point lastCursorPos = new Point(-1, -1);
         bool invisible_since_creation; // Set by WindowsMessage.CREATE and consumed by Visible = true (calls BringWindowToFront).
         int suppress_resize; // Used in WindowBorder and WindowState in order to avoid rapid, consecutive resize events.
 
@@ -98,8 +100,6 @@ namespace OpenTK.Platform.Windows
         public static readonly uint AltRightScanCode = Functions.MapVirtualKey(VirtualKeys.RMENU, 0);
 
         KeyPressEventArgs key_press = new KeyPressEventArgs((char)0);
-
-        int cursor_visible_count = 0;
 
         static readonly object SyncRoot = new object();
 
@@ -154,6 +154,7 @@ namespace OpenTK.Platform.Windows
 
         IntPtr WindowProcedure(IntPtr handle, WindowMessage message, IntPtr wParam, IntPtr lParam)
         {
+            Point point;
             switch (message)
             {
                 #region Size / Move / Style events
@@ -219,10 +220,6 @@ namespace OpenTK.Platform.Windows
                                 if (suppress_resize <= 0)
                                     Resize(this, EventArgs.Empty);
                             }
-
-                            // Ensure cursor remains grabbed
-                            if (!CursorVisible)
-                                GrabCursor();
                         }
                     }
                     break;
@@ -241,10 +238,6 @@ namespace OpenTK.Platform.Windows
                                 windowBorder = WindowBorder.Fixed;
                         }
                     }
-
-                    // Ensure cursor remains grabbed
-                    if (!CursorVisible)
-                        GrabCursor();
                     
                     break;
 
@@ -267,10 +260,6 @@ namespace OpenTK.Platform.Windows
                         WindowStateChanged(this, EventArgs.Empty);
                     }
 
-                    // Ensure cursor remains grabbed
-                    if (!CursorVisible)
-                        GrabCursor();
-
                     break;
 
                 #endregion
@@ -287,7 +276,7 @@ namespace OpenTK.Platform.Windows
                     break;
 
                 case WindowMessage.MOUSEMOVE:
-                    Point point = new Point(
+                    point = new Point(
                         (short)((uint)lParam.ToInt32() & 0x0000FFFF),
                         (short)(((uint)lParam.ToInt32() & 0xFFFF0000) >> 16));
                     mouse.Position = point;
@@ -298,16 +287,42 @@ namespace OpenTK.Platform.Windows
                         // re-entered the window.
                         mouse_outside_window = false;
                         EnableMouseTracking();
-
-                        MouseEnter(this, EventArgs.Empty);
                     }
+					
+					if (this.client_rectangle.Contains(lastCursorPos) && !this.client_rectangle.Contains(point))
+					{
+						if (!CursorVisible)
+							ShowCursor();
+						mouse.NotifyLeave();
+						MouseLeave(this, EventArgs.Empty);
+					}
+					if (!this.client_rectangle.Contains(lastCursorPos) && this.client_rectangle.Contains(point))
+					{
+						if (!CursorVisible)
+							HideCursor();
+						mouse.NotifyEnter();
+						MouseEnter(this, EventArgs.Empty);
+					}
+
+					lastCursorPos = point;
                     break;
 
                 case WindowMessage.MOUSELEAVE:
-                    mouse_outside_window = true;
-                    // Mouse tracking is disabled automatically by the OS
+					mouse_outside_window = true;
+					// Mouse tracking is disabled automatically by the OS
 
-                    MouseLeave(this, EventArgs.Empty);
+					Functions.GetCursorPos(out point);
+					point = this.PointToClient(point);
+
+					if (this.client_rectangle.Contains(lastCursorPos) && !this.client_rectangle.Contains(point))
+					{
+						if (!CursorVisible)
+							ShowCursor();
+						mouse.NotifyLeave();
+						MouseLeave(this, EventArgs.Empty);
+					}
+
+					lastCursorPos = point;
                     break;
 
                 case WindowMessage.MOUSEWHEEL:
@@ -375,24 +390,29 @@ namespace OpenTK.Platform.Windows
                     // In this case, both keys will be reported as pressed.
 
                     bool extended = (lParam.ToInt64() & ExtendedBit) != 0;
-                    short scancode = (short)((lParam.ToInt64() >> 16) & 0xFF);
+					short scancode = (short)((lParam.ToInt64() >> 16) & 0xFF);
                     VirtualKeys vkey = (VirtualKeys)wParam;
                     bool is_valid;
                     Key key = KeyMap.TranslateKey(scancode, vkey, extended, false, out is_valid);
 
                     if (is_valid)
-                    {
-                        keyboard.SetKey(key, (byte)scancode, pressed);
-                    }
+					{
+						keyboard.SetKey(key, (byte)scancode, pressed);
+					}
 
-                    return IntPtr.Zero;
+					return IntPtr.Zero;
 
                 case WindowMessage.SYSCHAR:
                     return IntPtr.Zero;
 
                 case WindowMessage.KILLFOCUS:
                     keyboard.ClearKeys();
+					keyboard.NotifyLostFocus();
                     break;
+
+				case WindowMessage.SETFOCUS:
+					keyboard.NotifyGotFocus();
+					break;
 
                 #endregion
 
@@ -621,6 +641,26 @@ namespace OpenTK.Platform.Windows
                 Debug.WriteLine(String.Format("Failed to ungrab cursor. Error: {0}",
                     Marshal.GetLastWin32Error()));
         }
+
+		void ShowCursor()
+		{
+			int cursor_visible_count;
+            do
+            {
+                cursor_visible_count = Functions.ShowCursor(true);
+            }
+            while (cursor_visible_count < 0);
+		}
+
+		void HideCursor()
+		{
+			int cursor_visible_count;
+            do
+            {
+                cursor_visible_count = Functions.ShowCursor(false);
+            }
+            while (cursor_visible_count >= 0);
+		}
 
         #endregion
 
@@ -853,29 +893,14 @@ namespace OpenTK.Platform.Windows
         
         public bool CursorVisible
         {
-            get { return cursor_visible_count >= 0; } // Not used
+            get { return this.cursor_visible; } // Not used
             set
             {
-                if (value && cursor_visible_count < 0)
-                {
-                    do
-                    {
-                        cursor_visible_count = Functions.ShowCursor(true);
-                    }
-                    while (cursor_visible_count < 0);
-
-                    UngrabCursor();
-                }
-                else if (!value && cursor_visible_count >= 0)
-                {
-                    do
-                    {
-                        cursor_visible_count = Functions.ShowCursor(false);
-                    }
-                    while (cursor_visible_count >= 0);
-
-                    GrabCursor();
-                }
+				this.cursor_visible = value;
+				if (value)
+					this.ShowCursor();
+				else if (!this.mouse_outside_window)
+					this.HideCursor();
             }
         }
         

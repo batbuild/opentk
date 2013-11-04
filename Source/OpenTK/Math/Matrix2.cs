@@ -391,7 +391,7 @@ namespace OpenTK
             Mult(ref left, ref right, out result);
             return result;
         }
-
+		/*
         /// <summary>
         /// Multiplies two instances.
         /// </summary>
@@ -460,7 +460,7 @@ namespace OpenTK
             Matrix2x4 result;
             Mult(ref left, ref right, out result);
             return result;
-        }
+        }*/
 
         #endregion
 
@@ -629,7 +629,7 @@ namespace OpenTK
         {
             return Mult(left, right);
         }
-
+		/**
         /// <summary>
         /// Matrix multiplication
         /// </summary>
@@ -651,7 +651,7 @@ namespace OpenTK
         {
             return Mult(left, right);
         }
-
+		*/
         /// <summary>
         /// Matrix addition
         /// </summary>

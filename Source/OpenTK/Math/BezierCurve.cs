@@ -225,7 +225,7 @@ namespace OpenTK
             else
                 perpendicular = points[1] - points[0];
 
-            return r + Vector2.Normalize(perpendicular).PerpendicularRight * parallel;
+            return r + perpendicular.Normalized.PerpendicularRight * parallel;
         }
 
         /// <summary>

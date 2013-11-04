@@ -299,7 +299,7 @@ namespace OpenTK.Graphics.OpenGL
                 }
             }
         }
-
+		/*
         public static void Normal3(Vector3d normal)
         {
             GL.Normal3(normal.X, normal.Y, normal.Z);
@@ -408,6 +408,7 @@ namespace OpenTK.Graphics.OpenGL
                 }
             }
         }
+		*/
 
         #endregion
 
@@ -466,7 +467,7 @@ namespace OpenTK.Graphics.OpenGL
                 }
             }
         }
-
+		/*
         public static void UniformMatrix2(int location, bool transpose, ref Matrix2d matrix)
         {
             unsafe
@@ -543,7 +544,7 @@ namespace OpenTK.Graphics.OpenGL
                 }
             }
         }
-
+		*/
         public static void UniformMatrix3(int location, bool transpose, ref Matrix3 matrix)
         {
             unsafe
@@ -554,7 +555,7 @@ namespace OpenTK.Graphics.OpenGL
                 }
             }
         }
-
+		/*
         public static void UniformMatrix3(int location, bool transpose, ref Matrix3d matrix)
         {
             unsafe
@@ -631,7 +632,7 @@ namespace OpenTK.Graphics.OpenGL
                 }
             }
         }
-
+		*/
         public static void UniformMatrix4(int location, bool transpose, ref Matrix4 matrix)
         {
             unsafe
@@ -642,7 +643,7 @@ namespace OpenTK.Graphics.OpenGL
                 }
             }
         }
-
+		/*
         public static void UniformMatrix4(int location, bool transpose, ref Matrix4d matrix)
         {
             unsafe
@@ -653,7 +654,7 @@ namespace OpenTK.Graphics.OpenGL
                 }
             }
         }
-
+		*/
         #endregion
 
         #region Shaders
@@ -857,7 +858,7 @@ namespace OpenTK.Graphics.OpenGL
         {
             GL.MultiTexCoord4(target, v.X, v.Y, v.Z, v.W);
         }
-
+		/*
         [CLSCompliant(false)]
         public static void VertexAttrib2(Int32 index, ref Vector2d v)
         {
@@ -905,7 +906,7 @@ namespace OpenTK.Graphics.OpenGL
         {
             GL.MultiTexCoord4(target, v.X, v.Y, v.Z, v.W);
         }
-
+		*/
         #endregion
 
         #region Rect
@@ -1366,7 +1367,7 @@ namespace OpenTK.Graphics.OpenGL
                     GetFloat(pname, (float*)ptr);
             }
         }
-
+		/*
         public static void GetDouble(GetPName pname, out Vector2d vector)
         {
             unsafe
@@ -1402,7 +1403,7 @@ namespace OpenTK.Graphics.OpenGL
                     GetDouble(pname, (double*)ptr);
             }
         }
-
+		*/
         #endregion
 
         #region Viewport

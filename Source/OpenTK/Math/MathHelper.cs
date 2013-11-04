@@ -17,7 +17,7 @@ namespace OpenTK
     /// <summary>
     /// Contains common mathematical functions and constants.
     /// </summary>
-    public static class MathHelper
+    internal static class MathHelper
     {
         #region Fields
 

@@ -106,7 +106,7 @@ namespace OpenTK
             else
                 perpendicular = r - CalculatePointOfDerivative(t);
 
-            return r + Vector2.Normalize(perpendicular).PerpendicularRight * Parallel;
+            return r + perpendicular.Normalized.PerpendicularRight * Parallel;
         }
 
         /// <summary>

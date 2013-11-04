@@ -10,6 +10,8 @@ using System.Text;
 using System.Runtime.InteropServices;
 namespace OpenTK
 {
+    #pragma warning disable 3019
+#if false
     /// <summary>
     /// Defines a 2d box (rectangle).
     /// </summary>
@@ -96,4 +98,6 @@ namespace OpenTK
             return String.Format("({0},{1})-({2},{3})", Left, Top, Right, Bottom);
         }
     }
+#endif
+    #pragma warning restore 3019
 }

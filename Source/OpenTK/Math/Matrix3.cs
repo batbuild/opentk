@@ -315,9 +315,9 @@ namespace OpenTK
         public Matrix3 ClearScale()
         {
             Matrix3 m = this;
-            m.Row0 = m.Row0.Normalized();
-            m.Row1 = m.Row1.Normalized();
-            m.Row2 = m.Row2.Normalized();
+            m.Row0 = m.Row0.Normalized;
+            m.Row1 = m.Row1.Normalized;
+            m.Row2 = m.Row2.Normalized;
             return m;
         }
         /// <summary>
@@ -349,9 +349,9 @@ namespace OpenTK
 
             if (row_normalise)
             {
-                row0 = row0.Normalized();
-                row1 = row1.Normalized();
-                row2 = row2.Normalized();
+                row0 = row0.Normalized;
+                row1 = row1.Normalized;
+                row2 = row2.Normalized;
             }
 
             // code below adapted from Blender
