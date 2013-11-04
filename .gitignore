@@ -1,7 +1,6 @@
 # Ignores specific to OpenTK.
 Binaries/
 OpenTK.userprefs
-Source/GlobalAssemblyInfo.cs
 Version.txt
 Source/OpenTK/OpenTK.xml
 Source/GLControl/OpenTK.GLControl.xml
