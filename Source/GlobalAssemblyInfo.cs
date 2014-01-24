@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyCompany("The Open Toolkit Library")]
 [assembly: AssemblyProduct("The Open Toolkit Library")]
-[assembly: AssemblyCopyright("Copyright © 2006 - 2010 the Open Toolkit Library")]
+[assembly: AssemblyCopyright("Copyright © 2006 - 2013 the Open Toolkit Library")]
 [assembly: AssemblyTrademark("OpenTK")]
 [assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.1385.3127")]
+[assembly: AssemblyFileVersion("1.1.1484.5660")]
