@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -35,6 +36,8 @@ namespace Bind.Structures
             Parameters = new ParameterCollection(f.Parameters);
             ReturnType = new Type(f.ReturnType);
             TrimmedName = f.TrimmedName;
+            Obsolete = f.Obsolete;
+            CLSCompliant = f.CLSCompliant;
             Body.AddRange(f.Body);
         }
 
@@ -235,18 +238,28 @@ namespace Bind.Structures
         {
             if (ContainsKey(f.Extension))
             {
-                int index = this[f.Extension].IndexOf(f);
+                var list = this[f.Extension];
+                int index = list.IndexOf(f);
                 if (index == -1)
                 {
                     Add(f);
                 }
                 else
                 {
-                    Function existing = this[f.Extension][index];
-                    if ((existing.Parameters.HasUnsignedParameters && !unsignedFunctions.IsMatch(existing.Name) && unsignedFunctions.IsMatch(f.Name)) ||
-                        (!existing.Parameters.HasUnsignedParameters && unsignedFunctions.IsMatch(existing.Name) && !unsignedFunctions.IsMatch(f.Name)))
+                    Function existing = list[index];
+                    bool replace = existing.Parameters.HasUnsignedParameters &&
+                        !unsignedFunctions.IsMatch(existing.Name) && unsignedFunctions.IsMatch(f.Name);
+                    replace |= !existing.Parameters.HasUnsignedParameters &&
+                        unsignedFunctions.IsMatch(existing.Name) && !unsignedFunctions.IsMatch(f.Name);
+                    replace |=
+                        (from p_old in existing.Parameters
+                                        join p_new in f.Parameters on p_old.Name equals p_new.Name
+                                        where p_new.ElementCount == 0 && p_old.ElementCount != 0
+                                        select true)
+                            .Count() != 0;
+                    if (replace)
                     {
-                        this[f.Extension][index] = f;
+                        list[index] = f;
                     }
                 }
             }

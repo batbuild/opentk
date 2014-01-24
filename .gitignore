@@ -2,9 +2,15 @@
 Binaries/
 OpenTK.userprefs
 Version.txt
+Build.txt
+Timestamp.txt
 Source/OpenTK/OpenTK.xml
 Source/GLControl/OpenTK.GLControl.xml
 Documentation/Source
+opentk*.exe
+opentk*.zip
+opentk*.nupkg
+Installers/Nuget/lib
 
 # OpenTK Resource files that seem like they should be ignored:
 Source/Compatibility/Properties/Resources.resources
@@ -43,7 +49,7 @@ TestResults
 # Build results
 [Dd]ebug/
 [Rr]elease/
-x64/
+Binaries/
 *_i.c
 *_p.c
 *.ilk
@@ -63,6 +69,7 @@ x64/
 *.vspscc
 *.vssscc
 .builds
+*.pidb
 
 # Visual C++ cache files
 ipch/

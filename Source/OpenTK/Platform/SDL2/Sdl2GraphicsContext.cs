@@ -65,17 +65,19 @@ namespace OpenTK.Platform.SDL2
             {
                 SetGLAttributes(mode, shareContext, major, minor, flags);
                 SdlContext = new ContextHandle(SDL.GL.CreateContext(Window.Handle));
+                if (SdlContext == ContextHandle.Zero)
+                {
+                    var error = SDL.GetError();
+                    Debug.Print("SDL2 failed to create OpenGL context: {0}", error);
+                    throw new GraphicsContextException(error);
+                }
+
                 Mode = GetGLAttributes(SdlContext, out flags);
-                Debug.Print("SDL2 created GraphicsContext (mode: {0}) (flags: {1}",
-                    Mode, flags);
-            }
-            if (SdlContext == ContextHandle.Zero)
-            {
-                var error = SDL.GetError();
-                Debug.Print("SDL2 failed to create OpenGL context: {0}", error);
-                throw new GraphicsContextException(error);
             }
             Handle = GraphicsContext.GetCurrentContext();
+            Debug.Print("SDL2 created GraphicsContext (handle: {0})", Handle);
+            Debug.Print("    GraphicsMode: {0}", Mode);
+            Debug.Print("    GraphicsContextFlags: {0}", flags);
         }
 
         #region Private Members
@@ -92,6 +94,9 @@ namespace OpenTK.Platform.SDL2
 
             int buffers;
             SDL.GL.GetAttribute(ContextAttribute.DOUBLEBUFFER, out buffers);
+            // DOUBLEBUFFER return a boolean (0-false, 1-true), so we need
+            // to adjust the buffer count (false->1 buffer, true->2 buffers)
+            buffers++;
 
             int red, green, blue, alpha;
             SDL.GL.GetAttribute(ContextAttribute.RED_SIZE, out red);
@@ -122,7 +127,7 @@ namespace OpenTK.Platform.SDL2
             int profile;
             SDL.GL.GetAttribute(ContextAttribute.CONTEXT_PROFILE_MASK, out profile);
 
-            if (egl != 0)
+            if (egl != 0 && (profile & (int)ContextProfileFlags.ES) != 0)
             {
                 context_flags |= GraphicsContextFlags.Embedded;
             }
@@ -152,6 +157,8 @@ namespace OpenTK.Platform.SDL2
             int major, int minor,
             GraphicsContextFlags flags)
         {
+            ContextProfileFlags cpflags = 0;
+
             if (mode.AccumulatorFormat.BitsPerPixel > 0)
             {
                 SDL.GL.SetAttribute(ContextAttribute.ACCUM_ALPHA_SIZE, mode.AccumulatorFormat.Alpha);
@@ -198,6 +205,15 @@ namespace OpenTK.Platform.SDL2
             {
                 SDL.GL.SetAttribute(ContextAttribute.CONTEXT_MAJOR_VERSION, major);
                 SDL.GL.SetAttribute(ContextAttribute.CONTEXT_MINOR_VERSION, minor);
+
+                // Workaround for https://github.com/opentk/opentk/issues/44
+                // Mac OS X desktop OpenGL 3.x/4.x contexts require require
+                // ContextProfileFlags.Core, otherwise they will fail to construct.
+                if (Configuration.RunningOnMacOS && major >= 3 &&
+                    (flags & GraphicsContextFlags.Embedded) == 0)
+                {
+                    cpflags |= ContextProfileFlags.CORE;
+                }
             }
 
             if ((flags & GraphicsContextFlags.Debug) != 0)
@@ -218,7 +234,6 @@ namespace OpenTK.Platform.SDL2
             */
 
             {
-                ContextProfileFlags cpflags = 0;
                 if ((flags & GraphicsContextFlags.Embedded) != 0)
                 {
                     cpflags |= ContextProfileFlags.ES;
@@ -251,6 +266,15 @@ namespace OpenTK.Platform.SDL2
 
         #endregion
 
+        #region Public Members
+
+        public static ContextHandle GetCurrentContext()
+        {
+            return new ContextHandle(SDL.GL.GetCurrentContext());
+        }
+
+        #endregion
+
         #region GraphicsContextBase Members
 
         public override void SwapBuffers()
@@ -277,6 +301,11 @@ namespace OpenTK.Platform.SDL2
         }
 
         public override IntPtr GetAddress(string function)
+        {
+            return SDL.GL.GetProcAddress(function);
+        }
+
+        public override IntPtr GetAddress(IntPtr function)
         {
             return SDL.GL.GetProcAddress(function);
         }
@@ -314,7 +343,7 @@ namespace OpenTK.Platform.SDL2
             {
                 if (manual)
                 {
-                    Debug.Print("Disposing {0}", GetType());
+                    Debug.Print("Disposing {0} (handle: {1})", GetType(), Handle);
                     lock (SDL.Sync)
                     {
                         SDL.GL.DeleteContext(SdlContext.Handle);
@@ -322,7 +351,8 @@ namespace OpenTK.Platform.SDL2
                 }
                 else
                 {
-                    Debug.WriteLine("Sdl2GraphicsContext leaked, did you forget to call Dispose()?");
+                    Debug.Print("Sdl2GraphicsContext (handle: {0}) leaked, did you forget to call Dispose()?",
+                        Handle);
                 }
                 IsDisposed = true;
             }

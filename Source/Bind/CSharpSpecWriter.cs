@@ -77,8 +77,6 @@ namespace Bind
                 Directory.CreateDirectory(Settings.OutputPath);
 
             string temp_enums_file = Path.GetTempFileName();
-            string temp_delegates_file = Path.GetTempFileName();
-            string temp_core_file = Path.GetTempFileName();
             string temp_wrappers_file = Path.GetTempFileName();
 
             // Enums
@@ -114,43 +112,6 @@ namespace Bind
                 sw.WriteLine("}");
             }
 
-            // Delegates
-            using (BindStreamWriter sw = new BindStreamWriter(temp_delegates_file))
-            {
-                WriteLicense(sw);
-                sw.WriteLine("namespace {0}", Settings.OutputNamespace);
-                sw.WriteLine("{");
-                sw.Indent();
-
-                sw.WriteLine("using System;");
-                sw.WriteLine("using System.Text;");
-                sw.WriteLine("using System.Runtime.InteropServices;");
-
-                sw.WriteLine("#pragma warning disable 0649");
-                WriteDelegates(sw, delegates);
-
-                sw.Unindent();
-                sw.WriteLine("}");
-            }
-
-            // Core
-            using (BindStreamWriter sw = new BindStreamWriter(temp_core_file))
-            {
-                WriteLicense(sw);
-                sw.WriteLine("namespace {0}", Settings.OutputNamespace);
-                sw.WriteLine("{");
-                sw.Indent();
-                //specWriter.WriteTypes(sw, Bind.Structures.Type.CSTypes);
-                sw.WriteLine("using System;");
-                sw.WriteLine("using System.Text;");
-                sw.WriteLine("using System.Runtime.InteropServices;");
-
-                WriteImports(sw, delegates);
-
-                sw.Unindent();
-                sw.WriteLine("}");
-            }
-
             // Wrappers
             using (BindStreamWriter sw = new BindStreamWriter(temp_wrappers_file))
             {
@@ -163,7 +124,7 @@ namespace Bind
                 sw.WriteLine("using System.Text;");
                 sw.WriteLine("using System.Runtime.InteropServices;");
 
-                WriteWrappers(sw, wrappers, enums, Generator.CSTypes);
+                WriteWrappers(sw, wrappers, delegates, enums, Generator.CSTypes);
 
                 sw.Unindent();
                 sw.WriteLine("}");
@@ -180,117 +141,47 @@ namespace Bind
             if (File.Exists(output_wrappers)) File.Delete(output_wrappers);
 
             File.Move(temp_enums_file, output_enums);
-            File.Move(temp_delegates_file, output_delegates);
-            File.Move(temp_core_file, output_core);
             File.Move(temp_wrappers_file, output_wrappers);
-        }
-
-        #endregion
-
-        #region WriteDelegates
-
-        void WriteDelegates(BindStreamWriter sw, DelegateCollection delegates)
-        {
-            Trace.WriteLine(String.Format("Writing delegates to:\t{0}.{1}.{2}", Settings.OutputNamespace, Settings.OutputClass, Settings.DelegatesClass));
-
-            sw.WriteLine("#pragma warning disable 3019");   // CLSCompliant attribute
-            sw.WriteLine("#pragma warning disable 1591");   // Missing doc comments
-
-            sw.WriteLine();
-            sw.WriteLine("partial class {0}", Settings.OutputClass);
-            sw.WriteLine("{");
-            sw.Indent();
-
-            sw.WriteLine("internal static partial class {0}", Settings.DelegatesClass);
-            sw.WriteLine("{");
-            sw.Indent();
-
-            foreach (var overloads in delegates.Values)
-            {
-                int overload_count = -1;
-                foreach (var d in overloads)
-                {
-                    overload_count++;
-                    string overload_suffix = overload_count > 0 ? overload_count.ToString() : String.Empty;
-                    d.Name += overload_suffix;
-
-                    sw.WriteLine("[System.Security.SuppressUnmanagedCodeSecurity()]");
-                    sw.WriteLine("internal {0};", GetDeclarationString(d, true));
-                    sw.WriteLine("internal {0}static {2} {1}{2};",   //  = null
-                             d.Unsafe ? "unsafe " : "",
-                             Settings.FunctionPrefix,
-                             d.Name);
-                }
-            }
-
-            sw.Unindent();
-            sw.WriteLine("}");
-
-            sw.Unindent();
-            sw.WriteLine("}");
-        }
-
-        #endregion
-
-        #region WriteImports
-
-        public void WriteImports(BindStreamWriter sw, DelegateCollection delegates)
-        {
-            Trace.WriteLine(String.Format("Writing imports to:\t{0}.{1}.{2}", Settings.OutputNamespace, Settings.OutputClass, Settings.ImportsClass));
-
-            sw.WriteLine("#pragma warning disable 3019");   // CLSCompliant attribute
-            sw.WriteLine("#pragma warning disable 1591");   // Missing doc comments
-
-            sw.WriteLine();
-            sw.WriteLine("partial class {0}", Settings.OutputClass);
-            sw.WriteLine("{");
-            sw.Indent();
-            sw.WriteLine();
-            sw.WriteLine("internal static partial class {0}", Settings.ImportsClass);
-            sw.WriteLine("{");
-            sw.Indent();
-            //sw.WriteLine("static {0}() {1} {2}", Settings.ImportsClass, "{", "}");    // Disable BeforeFieldInit
-            sw.WriteLine();
-            foreach (Delegate d in delegates.Values.SelectMany(v => v))
-            {
-                sw.WriteLine("[System.Security.SuppressUnmanagedCodeSecurity()]");
-                sw.WriteLine(
-                    "[System.Runtime.InteropServices.DllImport({0}.Library, EntryPoint = \"{1}{2}\"{3})]",
-                    Settings.OutputClass,
-                    Settings.FunctionPrefix,
-                    d.EntryPoint,
-                    d.EntryPoint.EndsWith("W") || d.EntryPoint.EndsWith("A") ? ", CharSet = CharSet.Auto" : ", ExactSpelling = true"
-                );
-                sw.WriteLine("internal extern static {0};", GetDeclarationString(d, false));
-            }
-            sw.Unindent();
-            sw.WriteLine("}");
-            sw.Unindent();
-            sw.WriteLine("}");
         }
 
         #endregion
 
         #region WriteWrappers
 
-        void WriteWrappers(BindStreamWriter sw, FunctionCollection wrappers, EnumCollection enums, IDictionary<string, string> CSTypes)
+        void WriteWrappers(BindStreamWriter sw, FunctionCollection wrappers,
+            DelegateCollection delegates, EnumCollection enums,
+            IDictionary<string, string> CSTypes)
         {
             Trace.WriteLine(String.Format("Writing wrappers to:\t{0}.{1}", Settings.OutputNamespace, Settings.OutputClass));
 
-            sw.WriteLine("#pragma warning disable 3019");   // CLSCompliant attribute
-            sw.WriteLine("#pragma warning disable 1591");   // Missing doc comments
-            sw.WriteLine("#pragma warning disable 1572");   // Wrong param comments
-            sw.WriteLine("#pragma warning disable 1573");   // Missing param comments
+            sw.WriteLine("#pragma warning disable 3019"); // CLSCompliant attribute
+            sw.WriteLine("#pragma warning disable 1591"); // Missing doc comments
+            sw.WriteLine("#pragma warning disable 1572"); // Wrong param comments
+            sw.WriteLine("#pragma warning disable 1573"); // Missing param comments
+            sw.WriteLine("#pragma warning disable 626"); // extern method without DllImport
 
             sw.WriteLine();
             sw.WriteLine("partial class {0}", Settings.OutputClass);
             sw.WriteLine("{");
-
             sw.Indent();
-            //sw.WriteLine("static {0}() {1} {2}", className, "{", "}");    // Static init in GLHelper.cs
+            
+            // Write constructor
+            sw.WriteLine("static {0}()", Settings.OutputClass);
+            sw.WriteLine("{");
+            sw.Indent();
+            sw.WriteLine("EntryPointNames = new string[]", delegates.Count);
+            sw.WriteLine("{");
+            sw.Indent();
+            foreach (var d in delegates.Values.Select(d => d.First()))
+                sw.WriteLine("\"{0}{1}\",", Settings.FunctionPrefix, d.Name);
+            sw.Unindent();
+            sw.WriteLine("};");
+            sw.WriteLine("EntryPoints = new IntPtr[EntryPointNames.Length];");
+            sw.Unindent();
+            sw.WriteLine("}");
             sw.WriteLine();
 
-            int current = 0;
+            int current_wrapper = 0;
             foreach (string key in wrappers.Keys)
             {
                 if (((Settings.Compatibility & Settings.Legacy.NoSeparateFunctionNamespaces) == Settings.Legacy.None) && key != "Core")
@@ -311,7 +202,8 @@ namespace Bind
                 wrappers[key].Sort();
                 foreach (Function f in wrappers[key])
                 {
-                    current = WriteWrapper(sw, current, f, enums);
+                    WriteWrapper(sw, f, enums);
+                    current_wrapper++;
                 }
 
                 if (((Settings.Compatibility & Settings.Legacy.NoSeparateFunctionNamespaces) == Settings.Legacy.None) && key != "Core")
@@ -321,43 +213,54 @@ namespace Bind
                     sw.WriteLine();
                 }
             }
+
+            // Emit native signatures.
+            // These are required by the patcher.
+            int current_signature = 0;
+            foreach (var d in wrappers.Values.SelectMany(e => e).Select(w => w.WrappedDelegate).Distinct())
+            {
+                sw.WriteLine("[Slot({0})]", d.Slot);
+                sw.WriteLine("[DllImport(Library, ExactSpelling = true, CallingConvention = CallingConvention.Winapi)]");
+                sw.WriteLine("static extern {0};", GetDeclarationString(d, false));
+                current_signature++;
+            }
+
             sw.Unindent();
             sw.WriteLine("}");
+
+            Console.WriteLine("Wrote {0} wrappers for {1} signatures", current_wrapper, current_signature);
         }
 
-        int WriteWrapper(BindStreamWriter sw, int current, Function f, EnumCollection enums)
+        void WriteWrapper(BindStreamWriter sw, Function f, EnumCollection enums)
         {
             if ((Settings.Compatibility & Settings.Legacy.NoDocumentation) == 0)
             {
-                string text = String.Format("Writing function #{0}: {1}", current++, f.ToString());
-                ConsoleRewrite(text);
-
                 WriteDocumentation(sw, f);
             }
             WriteMethod(sw, f, enums);
             sw.WriteLine();
-            return current;
         }
 
         private void WriteMethod(BindStreamWriter sw, Function f, EnumCollection enums)
         {
-            CreateBody(f, enums);
-
-            if (f.Deprecated && Settings.IsEnabled(Settings.Legacy.AddDeprecationWarnings))
+            if (!String.IsNullOrEmpty(f.Obsolete))
+            {
+                sw.WriteLine("[Obsolete(\"{0}\")]", f.Obsolete);
+            }
+            else if (f.Deprecated && Settings.IsEnabled(Settings.Legacy.AddDeprecationWarnings))
             {
                 sw.WriteLine("[Obsolete(\"Deprecated in OpenGL {0}\")]", f.DeprecatedVersion);
             }
 
-            if (!f.CLSCompliant)
-            {
-                sw.WriteLine("[System.CLSCompliant(false)]");
-            }
-
             sw.WriteLine("[AutoGenerated(Category = \"{0}\", Version = \"{1}\", EntryPoint = \"{2}\")]",
                 f.Category, f.Version, Settings.FunctionPrefix + f.WrappedDelegate.EntryPoint);
-            sw.WriteLine("public static ");
-            sw.Write(GetDeclarationString(f));
-            sw.WriteLine();
+
+            if (!f.CLSCompliant)
+            {
+                sw.WriteLine("[CLSCompliant(false)]");
+            }
+
+            sw.WriteLine("public static {0} {{ throw new NotImplementedException(); }}", GetDeclarationString(f, Settings.Compatibility));
         }
 
         DocProcessor processor_;
@@ -391,29 +294,29 @@ namespace Bind
                 if (!docfiles.ContainsKey(docfile))
                     docfile = Settings.FunctionPrefix + f.TrimmedName.TrimEnd(numbers) + ".xml";
 
-                string doc = null;
+                var docs = new List<string>();
                 if (docfiles.ContainsKey(docfile))
                 {
-                    doc = Processor.ProcessFile(docfiles[docfile]);
+                    docs.AddRange(Processor.ProcessFile(docfiles[docfile]));
                 }
-                if (doc == null)
+                if (docs.Count == 0)
                 {
-                    doc = "/// <summary></summary>";
+                    docs.Add("/// <summary></summary>");
                 }
 
-                int summary_start = doc.IndexOf("<summary>") + "<summary>".Length;
+                int summary_start = docs[0].IndexOf("<summary>") + "<summary>".Length;
                 string warning = "[deprecated: v{0}]";
                 string category = "[requires: {0}]";
                 if (f.Deprecated)
                 {
                     warning = String.Format(warning, f.DeprecatedVersion);
-                    doc = doc.Insert(summary_start, warning);
+                    docs[0] = docs[0].Insert(summary_start, warning);
                 }
 
                 if (f.Extension != "Core" && !String.IsNullOrEmpty(f.Category))
                 {
                     category = String.Format(category, f.Category);
-                    doc = doc.Insert(summary_start, category);
+                    docs[0] = docs[0].Insert(summary_start, category);
                 }
                 else if (!String.IsNullOrEmpty(f.Version))
                 {
@@ -421,10 +324,13 @@ namespace Bind
                         category = String.Format(category, "v" + f.Version);
                     else
                         category = String.Format(category, "v" + f.Version + " and " + f.Category);
-                    doc = doc.Insert(summary_start, category);
+                    docs[0] = docs[0].Insert(summary_start, category);
                 }
 
-                sw.WriteLine(doc);
+                foreach (var doc in docs)
+                {
+                    sw.WriteLine(doc);
+                }
             }
             catch (Exception e)
             {
@@ -498,21 +404,31 @@ namespace Bind
                     sw.Indent();
                 }
 
-                int current = 0;
+                // Build a dictionary of which functions use which enums
+                var enum_counts = new Dictionary<Enum, List<Function>>();
+                foreach (var e in enums.Values)
+                {
+                    // Initialize the dictionary
+                    enum_counts.Add(e, new List<Function>());
+                }
+                foreach (var wrapper in wrappers.Values.SelectMany(w => w))
+                {
+                    // Add every function to every enum parameter it references
+                    foreach (var parameter in wrapper.Parameters.Where(p => p.IsEnum))
+                    {
+                        var e = enums[parameter.CurrentType];
+                        var list = enum_counts[e];
+                        list.Add(wrapper);
+                    }
+                }
+
                 foreach (Enum @enum in enums.Values)
                 {
-                    string text = String.Format("Writing enum #{0}: {1}", current++, @enum.Name);
-                    ConsoleRewrite(text);
-
                     if (!Settings.IsEnabled(Settings.Legacy.NoDocumentation))
                     {
                         // Document which functions use this enum.
-                        var functions =
-                            (from wrapper in wrappers
-                            from function in wrapper.Value
-                            from param in function.Parameters
-                            where param.CurrentType == @enum.Name
-                            select Settings.GLClass + (function.Extension != "Core" ? ("." + function.Extension) : "") + "." + function.TrimmedName)
+                        var functions = enum_counts[@enum]
+                            .Select(w => Settings.GLClass + (w.Extension != "Core" ? ("." + w.Extension) : "") + "." + w.TrimmedName)
                             .Distinct();
 
                         sw.WriteLine("/// <summary>");
@@ -590,226 +506,6 @@ namespace Bind
             return enums.ContainsKey(s);
         }
 
-        void CreateBody(Function func, EnumCollection enums)
-        {
-            Function f = new Function(func);
-            f.Body.Clear();
-
-            var handle_statements = new List<string>();
-            var handle_release_statements = new List<string>();
-            var fixed_statements = new List<string>();
-            var assign_statements = new List<string>();
-
-            // Obtain pointers by pinning the parameters
-            int index = -1;
-            foreach (Parameter p in f.Parameters)
-            {
-                index++;
-                if (p.NeedsPin)
-                {
-                    if (p.WrapperType == WrapperTypes.GenericParameter)
-                    {
-                        // Use GCHandle to obtain pointer to generic parameters and 'fixed' for arrays.
-                        // This is because fixed can only take the address of fields, not managed objects.
-                        handle_statements.Add(String.Format(
-                            "{0} {1}_ptr = {0}.Alloc({1}, GCHandleType.Pinned);",
-                            "GCHandle", p.Name));
-
-                        handle_release_statements.Add(String.Format("{0}_ptr.Free();", p.Name));
-
-                        // Due to the GCHandle-style pinning (which boxes value types), we need to assign the modified
-                        // value back to the reference parameter (but only if it has an out or in/out flow direction).
-                        if ((p.Flow == FlowDirection.Out || p.Flow == FlowDirection.Undefined) && p.Reference)
-                        {
-                            assign_statements.Add(String.Format(
-                                "{0} = ({1}){0}_ptr.Target;",
-                                p.Name, p.QualifiedType));
-                        }
-
-                        // Note! The following line modifies f.Parameters, *not* this.Parameters
-                        p.Name = "(IntPtr)" + p.Name + "_ptr.AddrOfPinnedObject()";
-                    }
-                    else if (p.WrapperType == WrapperTypes.PointerParameter ||
-                        p.WrapperType == WrapperTypes.ArrayParameter ||
-                        p.WrapperType == WrapperTypes.ReferenceParameter)
-                    {
-                        // A fixed statement is issued for all non-generic pointers, arrays and references.
-                        fixed_statements.Add(String.Format(
-                            "fixed ({0}{3} {1} = {2})",
-                            p.QualifiedType,
-                            p.Name + "_ptr",
-                            p.Array > 0 ? p.Name : "&" + p.Name,
-                            pointer_levels[p.IndirectionLevel]));
-
-                        // Arrays are not value types, so we don't need to do anything for them.
-                        // Pointers are passed directly by value, so we don't need to assign them back either (they don't change).
-                        if ((p.Flow == FlowDirection.Out || p.Flow == FlowDirection.Undefined) && p.Reference)
-                        {
-                            assign_statements.Add(String.Format("{0} = *{0}_ptr;", p.Name));
-                        }
-
-                        p.Name = p.Name + "_ptr";
-                    }
-                    else
-                    {
-                        throw new ApplicationException("Unknown parameter type");
-                    }
-                }
-
-                p.QualifiedType = f.WrappedDelegate.Parameters[index].QualifiedType;
-            }
-
-            f.Body.Indent();
-
-            // Automatic OpenGL error checking.
-            // See OpenTK.Graphics.ErrorHelper for more information.
-            // Make sure that no error checking is added to the GetError function,
-            // as that would cause infinite recursion!
-            if ((Settings.Compatibility & Settings.Legacy.NoDebugHelpers) == 0)
-            {
-                if (f.TrimmedName != "GetError")
-                {
-                    f.Body.Add("#if DEBUG");
-                    f.Body.Add("using (new ErrorHelper(GraphicsContext.CurrentContext))");
-                    f.Body.Add("{");
-                    if (f.TrimmedName == "Begin")
-                        f.Body.Add("GraphicsContext.CurrentContext.ErrorChecking = false;");
-                    f.Body.Add("#endif");
-                }
-            }
-
-            if (!f.Unsafe && fixed_statements.Count > 0)
-            {
-                f.Body.Add("unsafe");
-                f.Body.Add("{");
-                f.Body.Indent();
-            }
-
-            if (fixed_statements.Count > 0)
-            {
-                f.Body.AddRange(fixed_statements);
-                f.Body.Add("{");
-                f.Body.Indent();
-            }
-
-            if (handle_statements.Count > 0)
-            {
-                f.Body.AddRange(handle_statements);
-                f.Body.Add("try");
-                f.Body.Add("{");
-                f.Body.Indent();
-            }
-
-            // Hack: When creating untyped enum wrappers, it is possible that the wrapper uses an "All"
-            // enum, while the delegate uses a specific enum (e.g. "TextureUnit"). For this reason, we need
-            // to modify the parameters before generating the call string.
-            // Note: We cannot generate a callstring using WrappedDelegate directly, as its parameters will
-            // typically be different than the parameters of the wrapper. We need to modify the parameters
-            // of the wrapper directly.
-            if ((Settings.Compatibility & Settings.Legacy.KeepUntypedEnums) != 0)
-            {
-                int parameter_index = -1; // Used for comparing wrapper parameters with delegate parameters
-                foreach (Parameter p in f.Parameters)
-                {
-                    parameter_index++;
-                    if (IsEnum(p.Name, enums) && p.QualifiedType != f.WrappedDelegate.Parameters[parameter_index].QualifiedType)
-                    {
-                        p.QualifiedType = f.WrappedDelegate.Parameters[parameter_index].QualifiedType;
-                    }
-                }
-            }
-
-            if (assign_statements.Count > 0)
-            {
-                // Call function
-                string callstring = GetInvocationString(f);
-                if (f.ReturnType.CurrentType.ToLower().Contains("void"))
-                {
-                    f.Body.Add(String.Format("{0};", callstring));
-                }
-                else if (func.ReturnType.CurrentType.ToLower().Contains("string"))
-                {
-                    f.Body.Add(String.Format("{0} {1} = null; unsafe {{ {1} = new string((sbyte*){2}); }}",
-                        func.ReturnType.QualifiedType, "retval", callstring));
-                }
-                else
-                {
-                    f.Body.Add(String.Format("{0} {1} = {2};",
-                        GetDeclarationString(f.ReturnType), "retval", callstring));
-                }
-
-                // Assign out parameters
-                f.Body.AddRange(assign_statements);
-
-                // Return
-                if (!f.ReturnType.CurrentType.ToLower().Contains("void"))
-                {
-                    f.Body.Add("return retval;");
-                }
-            }
-            else
-            {
-                // Call function and return
-                var callstring = GetInvocationString(f);
-                if (f.ReturnType.CurrentType.ToLower().Contains("void"))
-                {
-                    f.Body.Add(String.Format("{0};", callstring));
-                }
-                else if (func.ReturnType.CurrentType.ToLower().Contains("string"))
-                {
-                    f.Body.Add(String.Format("unsafe {{ return new string((sbyte*){0}); }}",
-                        callstring));
-                }
-                else
-                {
-                    f.Body.Add(String.Format("return {0};", callstring));
-                }
-            }
-
-            // Free all allocated GCHandles
-            if (handle_statements.Count > 0)
-            {
-                f.Body.Unindent();
-                f.Body.Add("}");
-                f.Body.Add("finally");
-                f.Body.Add("{");
-                f.Body.Indent();
-
-                f.Body.AddRange(handle_release_statements);
-
-                f.Body.Unindent();
-                f.Body.Add("}");
-            }
-
-            if (!f.Unsafe && fixed_statements.Count > 0)
-            {
-                f.Body.Unindent();
-                f.Body.Add("}");
-            }
-
-            if (fixed_statements.Count > 0)
-            {
-                f.Body.Unindent();
-                f.Body.Add("}");
-            }
-
-            if ((Settings.Compatibility & Settings.Legacy.NoDebugHelpers) == 0)
-            {
-                if (f.TrimmedName != "GetError")
-                {
-                    f.Body.Add("#if DEBUG");
-                    if (f.TrimmedName == "End")
-                        f.Body.Add("GraphicsContext.CurrentContext.ErrorChecking = true;");
-                    f.Body.Add("}");
-                    f.Body.Add("#endif");
-                }
-            }
-
-            f.Body.Unindent();
-
-            func.Body = f.Body;
-        }
-
         string GetDeclarationString(Constant c)
         {
             if (String.IsNullOrEmpty(c.Name))
@@ -833,10 +529,11 @@ namespace Bind
             sb.Append(d.Unsafe ? "unsafe " : "");
             if (is_delegate)
                 sb.Append("delegate ");
-            sb.Append(GetDeclarationString(d.ReturnType));
+            sb.Append(GetDeclarationString(d.ReturnType, Settings.Legacy.ConstIntEnums));
             sb.Append(" ");
+            sb.Append(Settings.FunctionPrefix);
             sb.Append(d.Name);
-            sb.Append(GetDeclarationString(d.Parameters));
+            sb.Append(GetDeclarationString(d.Parameters, Settings.Legacy.ConstIntEnums));
 
             return sb.ToString();
         }
@@ -874,12 +571,12 @@ namespace Bind
             return sb.ToString();
         }
 
-        string GetDeclarationString(Function f)
+        string GetDeclarationString(Function f, Settings.Legacy settings)
         {
             StringBuilder sb = new StringBuilder();
 
             sb.Append(f.Unsafe ? "unsafe " : "");
-            sb.Append(GetDeclarationString(f.ReturnType));
+            sb.Append(GetDeclarationString(f.ReturnType, settings));
             sb.Append(" ");
             if ((Settings.Compatibility & Settings.Legacy.NoTrimFunctionEnding) != Settings.Legacy.None)
             {
@@ -901,9 +598,12 @@ namespace Bind
                 sb.Remove(sb.Length - 1, 1);
                 sb.Append(">");
             }
-            sb.AppendLine(GetDeclarationString(f.Parameters));
+
+            sb.Append(GetDeclarationString(f.Parameters, settings));
+
             if (f.Parameters.HasGenericParameters)
             {
+                sb.AppendLine();
                 foreach (Parameter p in f.Parameters)
                 {
                     if (p.Generic)
@@ -911,17 +611,10 @@ namespace Bind
                 }
             }
 
-            sb.AppendLine("{");
-            foreach (var line in f.Body)
-            {
-                sb.AppendLine(line);
-            }
-            sb.Append("}");
-
             return sb.ToString();
         }
 
-        string GetDeclarationString(Parameter p, bool override_unsafe_setting)
+        string GetDeclarationString(Parameter p, bool override_unsafe_setting, Settings.Legacy settings)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -946,12 +639,12 @@ namespace Bind
                 }
                 else
                 {
-                    sb.Append(GetDeclarationString(p as Type));
+                    sb.Append(GetDeclarationString(p as Type, settings));
                 }
             }
             else
             {
-                sb.Append(GetDeclarationString(p as Type));
+                sb.Append(GetDeclarationString(p as Type, settings));
             }
             if (!String.IsNullOrEmpty(p.Name))
             {
@@ -962,7 +655,7 @@ namespace Bind
             return sb.ToString();
         }
 
-        string GetDeclarationString(ParameterCollection parameters)
+        string GetDeclarationString(ParameterCollection parameters, Settings.Legacy settings)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -971,7 +664,7 @@ namespace Bind
             {
                 foreach (Parameter p in parameters)
                 {
-                    sb.Append(GetDeclarationString(p, false));
+                    sb.Append(GetDeclarationString(p, false, settings));
                     sb.Append(", ");
                 }
                 sb.Replace(", ", ")", sb.Length - 2, 2);
@@ -984,85 +677,21 @@ namespace Bind
             return sb.ToString();
         }
 
-        string GetDeclarationString(Type type)
+        string GetDeclarationString(Type type, Settings.Legacy settings)
         {
+            var t = type.QualifiedType;
+            if ((settings & Settings.Legacy.ConstIntEnums) != 0)
+            {
+                if (type.IsEnum)
+                {
+                    t = "System.Int32";
+                }
+            }
+
             return String.Format("{0}{1}{2}",
-                type.QualifiedType,
+                t,
                 pointer_levels[type.Pointer],
                 array_levels[type.Array]);
-        }
-
-        string GetInvocationString(Delegate d)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append(Settings.DelegatesClass);
-            sb.Append(Settings.NamespaceSeparator);
-            sb.Append(Settings.FunctionPrefix);
-            sb.Append(d.Name);
-            sb.Append(GetInvocationString(d.Parameters));
-
-            return sb.ToString();
-        }
-
-        string GetInvocationString(ParameterCollection parameters)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("(");
-
-            if (parameters.Count > 0)
-            {
-                foreach (Parameter p in parameters)
-                {
-                    if (p.Unchecked)
-                        sb.Append("unchecked((" + p.QualifiedType + ")");
-
-                    if (!p.Generic && p.CurrentType != "object")
-                    {
-                        if (p.CurrentType.ToLower().Contains("string"))
-                        {
-                            sb.Append(String.Format("({0}{1})",
-                                p.QualifiedType, (p.Array > 0) ? "[]" : ""));
-                        }
-                        else if (p.IndirectionLevel != 0)
-                        {
-                            if (((Settings.Compatibility & Settings.Legacy.TurnVoidPointersToIntPtr) != Settings.Legacy.None) &&
-                                p.Pointer != 0 && p.CurrentType.Contains("void"))
-                            {
-                                sb.Append("(IntPtr)");
-                            }
-                            else
-                            {
-                                sb.Append("(");
-
-                                sb.Append(p.QualifiedType);
-                                for (int i = 0; i < p.IndirectionLevel; i++)
-                                    sb.Append("*");
-                                sb.Append(")");
-                            }
-                        }
-                        else
-                        {
-                            sb.Append(String.Format("({0})", p.QualifiedType));
-                        }
-                    }
-
-                    sb.Append(p.Name);
-
-                    if (p.Unchecked)
-                        sb.Append(")");
-
-                    sb.Append(", ");
-                }
-                sb.Replace(", ", ")", sb.Length - 2, 2);
-            }
-            else
-            {
-                sb.Append(")");
-            }
-
-            return sb.ToString();
         }
 
         #endregion

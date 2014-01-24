@@ -23,9 +23,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 //
+
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Security;
 using System.Runtime.InteropServices;
 
@@ -43,11 +45,26 @@ namespace OpenTK.Platform.SDL2
         #endif
 
         public readonly static object Sync = new object();
-        public readonly static Version Version;
-
-        static SDL()
+        static Nullable<Version> version;
+        public static Version Version
         {
-            GetVersion(out Version);
+            get
+            {
+                try
+                {
+                    if (!version.HasValue)
+                    {
+                        version = GetVersion();
+                    }
+                    return version.Value;
+                }
+                catch
+                {
+                    // nom nom
+                    Debug.Print("[SDL2] Failed to retrieve version");
+                    return new Version();
+                }
+            }
         }
 
         #region Functions
@@ -65,6 +82,10 @@ namespace OpenTK.Platform.SDL2
         public static extern void AddEventWatch(EventFilter filter, IntPtr userdata);
 
         [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_AddEventWatch", ExactSpelling = true)]
+        public static extern void AddEventWatch(IntPtr filter, IntPtr userdata);
+
+        [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_CreateRGBSurfaceFrom", ExactSpelling = true)]
         public static extern IntPtr CreateRGBSurfaceFrom(IntPtr pixels,
             int width, int height, int depth, int pitch,
@@ -73,7 +94,6 @@ namespace OpenTK.Platform.SDL2
         [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_CreateWindow", ExactSpelling = true)]
         public static extern IntPtr CreateWindow(string title, int x, int y, int w, int h, WindowFlags flags);
-        //public static extern IntPtr SDL_CreateWindow(string title, int x, int y, int w, int h, WindowFlags flags);
 
         [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_CreateWindowFrom", ExactSpelling = true)]
@@ -84,6 +104,10 @@ namespace OpenTK.Platform.SDL2
         public static extern void DelEventWatch(EventFilter filter, IntPtr userdata);
 
         [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_DelEventWatch", ExactSpelling = true)]
+        public static extern void DelEventWatch(IntPtr filter, IntPtr userdata);
+
+        [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_DestroyWindow", ExactSpelling = true)]
         public static extern void DestroyWindow(IntPtr window);
 
@@ -91,9 +115,90 @@ namespace OpenTK.Platform.SDL2
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_FreeSurface", ExactSpelling = true)]
         public static extern void FreeSurface(IntPtr surface);
 
+        #region GameContoller
+
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GameControllerEventState", ExactSpelling = true)]
+        public static extern EventState GameControllerEventState(EventState state);
+
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GameControllerGetAxis", ExactSpelling = true)]
+        public static extern short GameControllerGetAxis(IntPtr gamecontroller, GameControllerAxis axis);
+
+        /// <summary>
+        /// Gets the SDL joystick layer binding for the specified game controller axis
+        /// </summary>
+        /// <param name="gamecontroller">Pointer to a game controller instance returned by <c>GameControllerOpen</c>.</param>
+        /// <param name="axis">A value from the <c>GameControllerAxis</c> enumeration</param>
+        /// <returns>A GameControllerButtonBind instance describing the specified binding</returns>
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GameControllerGetBindForAxis", ExactSpelling = true)]
+        public static extern GameControllerButtonBind GameControllerGetBindForAxis(IntPtr gamecontroller, GameControllerAxis axis);
+
+        /// <summary>
+        /// Gets the SDL joystick layer binding for the specified game controller button
+        /// </summary>
+        /// <param name="gamecontroller">Pointer to a game controller instance returned by <c>GameControllerOpen</c>.</param>
+        /// <param name="button">A value from the <c>GameControllerButton</c> enumeration</param>
+        /// <returns>A GameControllerButtonBind instance describing the specified binding</returns>
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GameControllerGetBindForButton", ExactSpelling = true)]
+        public static extern GameControllerButtonBind GameControllerGetBindForButton(
+            IntPtr gamecontroller, GameControllerButton button);
+
+        /// <summary>
+        /// Gets the current state of a button on a game controller.
+        /// </summary>
+        /// <param name="gamecontroller">A game controller handle previously opened with <c>GameControllerOpen</c>.</param>
+        /// <param name="button">A zero-based <c>GameControllerButton</c> value.</param>
+        /// <returns><c>true</c> if the specified button is pressed; <c>false</c> otherwise.</returns>
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GameControllerGetButton", ExactSpelling = true)]
+        public static extern bool GameControllerGetButton(IntPtr gamecontroller, GameControllerButton button);
+
+        /// <summary>
+        /// Retrieve the joystick handle that corresponds to the specified game controller.
+        /// </summary>
+        /// <param name="gamecontroller">A game controller handle previously opened with <c>GameControllerOpen</c>.</param>
+        /// <returns>A handle to a joystick, or IntPtr.Zero in case of error. The pointer is owned by the callee. Use <c>SDL.GetError</c> to retrieve error information</returns>
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GameControllerGetJoystick", ExactSpelling = true)]
+        public static extern IntPtr GameControllerGetJoystick(IntPtr gamecontroller);
+
         [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GetCurrentDisplayMode", ExactSpelling = true)]
         public static extern int GetCurrentDisplayMode(int displayIndex, out DisplayMode mode);
+
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GameControllerName", ExactSpelling = true)]
+        static extern IntPtr GameControllerNameInternal(IntPtr gamecontroller);
+
+        /// <summary>
+        /// Return the name for an openend game controller instance.
+        /// </summary>
+        /// <returns>The name of the game controller name.</returns>
+        /// <param name="gamecontroller">Pointer to a game controller instance returned by <c>GameControllerOpen</c>.</param>
+        public static string GameControllerName(IntPtr gamecontroller)
+        {
+            unsafe
+            {
+                return new string((sbyte*)GameControllerNameInternal(gamecontroller));
+            }
+        }
+
+        /// <summary>
+        /// Opens a game controller for use.
+        /// </summary>
+        /// <param name="joystick_index">
+        /// A zero-based index for the game controller.
+        /// This index is the value which will identify this controller in future controller events.
+        /// </param>
+        /// <returns>A handle to the game controller instance, or IntPtr.Zero in case of error.</returns>
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GameControllerOpen", ExactSpelling = true)]
+        public static extern IntPtr GameControllerOpen(int joystick_index);
+
+        #endregion
 
         [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GetDisplayBounds", ExactSpelling = true)]
@@ -130,6 +235,12 @@ namespace OpenTK.Platform.SDL2
         [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GetVersion", ExactSpelling = true)]
         public static extern void GetVersion(out Version version);
+        public static Version GetVersion()
+        {
+            Version v;
+            GetVersion(out v);
+            return v;
+        }
 
         [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GetWindowID", ExactSpelling = true)]
@@ -160,8 +271,25 @@ namespace OpenTK.Platform.SDL2
         public static extern int Init(SystemFlags flags);
 
         [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_InitSubSystem", ExactSpelling = true)]
+        public static extern int InitSubSystem(SystemFlags flags);
+
+        /// <summary>
+        /// Determines if the specified joystick is supported by the GameController API.
+        /// </summary>
+        /// <returns><c>true</c> if joystick_index is supported by the GameController API; <c>false</c> otherwise.</returns>
+        /// <param name="joystick_index">The index of the joystick to check.</param>
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_IsGameController", ExactSpelling = true)]
+        public static extern bool IsGameController(int joystick_index);
+
+        [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_JoystickClose", ExactSpelling = true)]
         public static extern void JoystickClose(IntPtr joystick);
+
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_JoystickEventState", ExactSpelling = true)]
+        public static extern EventState JoystickEventState(EventState enabled);
 
         [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_JoystickGetAxis", ExactSpelling = true)]
@@ -172,8 +300,19 @@ namespace OpenTK.Platform.SDL2
         public static extern byte JoystickGetButton(IntPtr joystick, int button);
 
         [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_JoystickGetGUID", ExactSpelling = true)]
+        public static extern JoystickGuid JoystickGetGUID(IntPtr joystick);
+
+        [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_JoystickName", ExactSpelling = true)]
-        public static extern string JoystickName(IntPtr joystick);
+        static extern IntPtr JoystickNameInternal(IntPtr joystick);
+        public static string JoystickName(IntPtr joystick)
+        {
+            unsafe
+            {
+                return new string((sbyte*)JoystickNameInternal(joystick));
+            }
+        }
 
         [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_JoystickNumAxes", ExactSpelling = true)]
@@ -280,6 +419,34 @@ namespace OpenTK.Platform.SDL2
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_WarpMouseInWindow", ExactSpelling = true)]
         public static extern void WarpMouseInWindow(IntPtr window, int x, int y);
 
+        #region SysWM
+
+        /// <summary>
+        /// Retrieves driver-dependent window information.
+        /// </summary>
+        /// <param name="window">
+        /// The window about which information is being requested.
+        /// </param>
+        /// <param name="info">
+        /// Returns driver-dependent information about the specified window.
+        /// </param>
+        /// <returns>
+        /// True, if the function is implemented and the version number of the info struct is valid;
+        /// false, otherwise.
+        /// </returns>
+        public static bool GetWindowWMInfo(IntPtr window, out SysWMInfo info)
+        {
+            info = new SysWMInfo();
+            info.Version = GetVersion();
+            return GetWindowWMInfoInternal(window, ref info);
+        }
+
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GetWindowWMInfo", ExactSpelling = true)]
+        static extern bool GetWindowWMInfoInternal(IntPtr window, ref SysWMInfo info);
+
+        #endregion
+
         public partial class GL
         {
             [SuppressUnmanagedCodeSecurity]
@@ -295,12 +462,16 @@ namespace OpenTK.Platform.SDL2
             public static extern int GetAttribute(ContextAttribute attr, out int value);
 
             [SuppressUnmanagedCodeSecurity]
+            [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GL_GetCurrentContext", ExactSpelling = true)]
+            public static extern IntPtr GetCurrentContext();
+
+            [SuppressUnmanagedCodeSecurity]
             [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GL_GetDrawableSize", ExactSpelling = true)]
             public static extern void GetDrawableSize(IntPtr window, out int w, out int h);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GL_GetProcAddress", ExactSpelling = true)]
-            static extern IntPtr GetProcAddress(IntPtr proc);
+            public static extern IntPtr GetProcAddress(IntPtr proc);
             public static IntPtr GetProcAddress(string proc)
             {
                 IntPtr p = Marshal.StringToHGlobalAnsi(proc);
@@ -418,6 +589,13 @@ namespace OpenTK.Platform.SDL2
         ES = 0x0004
     }
 
+    enum EventState
+    {
+        Query = -1,
+        Ignore = 0,
+        Enable = 1
+    }
+
     enum EventType
     {
         FIRSTEVENT = 0,
@@ -455,6 +633,61 @@ namespace OpenTK.Platform.SDL2
         DROPFILE = 0x1000,
         USEREVENT = 0x8000,
         LASTEVENT = 0xFFFF
+    }
+
+    enum GameControllerAxis : byte
+    {
+        Invalid = 0xff,
+        LeftX = 0,
+        LeftY,
+        RightX,
+        RightY,
+        TriggerLeft,
+        TriggerRight,
+        Max
+    }
+
+    enum GameControllerButton : byte
+    {
+        INVALID = 0xff,
+        A = 0,
+        B,
+        X,
+        Y,
+        BACK,
+        GUIDE,
+        START,
+        LEFTSTICK,
+        RIGHTSTICK,
+        LEFTSHOULDER,
+        RIGHTSHOULDER,
+        DPAD_UP,
+        DPAD_DOWN,
+        DPAD_LEFT,
+        DPAD_RIGHT,
+        Max
+    }
+
+    enum GameControllerBindType : byte
+    {
+        None = 0,
+        Button,
+        Axis,
+        Hat
+    }
+
+    [Flags]
+    enum HatPosition : byte
+    {
+        Centered = 0x00,
+        Up = 0x01,
+        Right = 0x02,
+        Down = 0x03,
+        Left = 0x04,
+        RightUp = Right | Up,
+        RightDown = Right | Down,
+        LeftUp = Left | Up,
+        LeftDown = Left | Down
     }
 
     enum Keycode
@@ -994,6 +1227,17 @@ namespace OpenTK.Platform.SDL2
             JOYSTICK | HAPTIC | GAMECONTROLLER
     }
 
+    enum SysWMType
+    {
+        Unknown = 0,
+        Windows,
+        X11,
+        Wayland,
+        DirectFB,
+        Cocoa,
+        UIKit,
+    }
+
     enum WindowEventID : byte
     {
         NONE,
@@ -1036,6 +1280,41 @@ namespace OpenTK.Platform.SDL2
 
     #region Structs
 
+    struct ControllerAxisEvent
+    {
+        public EventType Type;
+        public uint Timestamp;
+        public int Which;
+        public GameControllerAxis Axis;
+        byte padding1;
+        byte padding2;
+        byte padding3;
+        public short Value;
+        ushort padding4;
+    }
+
+    struct ControllerButtonEvent
+    {
+        public EventType Type;
+        public uint Timestamp;
+        public int Which;
+        public GameControllerButton Button;
+        public State State;
+        byte padding1;
+        byte padding2;
+    }
+
+    struct ControllerDeviceEvent
+    {
+        public EventType Type;
+        public uint Timestamp;
+
+        /// <summary>
+        /// The joystick device index for the ADDED event, instance id for the REMOVED or REMAPPED event
+        /// </summary>
+        public int Which;
+    }
+
     struct DisplayMode
     {
         public uint Format;
@@ -1066,21 +1345,21 @@ namespace OpenTK.Platform.SDL2
         public MouseWheelEvent Wheel;
         [FieldOffset(0)]
         public JoyAxisEvent JoyAxis;
+        [FieldOffset(0)]
+        public JoyBallEvent JoyBall;
+        [FieldOffset(0)]
+        public JoyHatEvent JoyHat;
+        [FieldOffset(0)]
+        public JoyButtonEvent JoyButton;
+        [FieldOffset(0)]
+        public JoyDeviceEvent JoyDevice;
+        [FieldOffset(0)]
+        public ControllerAxisEvent ControllerAxis;
+        [FieldOffset(0)]
+        public ControllerButtonEvent ControllerButton;
+        [FieldOffset(0)]
+        public ControllerDeviceEvent ControllerDevice;
 #if false
-        [FieldOffset(0)]
-        public JoyBallEvent jball;
-        [FieldOffset(0)]
-        public JoyHatEvent jhat;
-        [FieldOffset(0)]
-        public JoyButtonEvent jbutton;
-        [FieldOffset(0)]
-        public JoyDeviceEvent jdevice;
-        [FieldOffset(0)]
-        public ControllerAxisEvent caxis;
-        [FieldOffset(0)]
-        public ControllerButtonEvent cbutton;
-        [FieldOffset(0)]
-        public ControllerDeviceEvent cdevice;
         [FieldOffset(0)]
         public QuitEvent quit;
         [FieldOffset(0)]
@@ -1098,6 +1377,21 @@ namespace OpenTK.Platform.SDL2
 #endif
     }
 
+    [StructLayout(LayoutKind.Explicit)]
+    struct GameControllerButtonBind
+    {
+        [FieldOffset(0)]
+        public GameControllerBindType BindType;
+        [FieldOffset(4)]
+        public Button Button;
+        [FieldOffset(4)]
+        public GameControllerAxis Axis;
+        [FieldOffset(4)]
+        public int Hat;
+        [FieldOffset(8)]
+        public int HatMask;
+    }
+
     struct JoyAxisEvent
     {
         public EventType Type;
@@ -1109,6 +1403,68 @@ namespace OpenTK.Platform.SDL2
         byte padding3;
         public Int16 Value;
         UInt16 padding4;
+    }
+
+    struct JoyBallEvent
+    {
+        public EventType Type;
+        public uint Timestamp;
+        public int Which;
+        public byte Ball;
+        byte padding1;
+        byte padding2;
+        byte padding3;
+        public short Xrel;
+        public short Yrel;
+    }
+
+    struct JoyButtonEvent
+    {
+        public EventType Type;
+        public uint Timestamp;
+        public int Which;
+        public byte Button;
+        public State State;
+        byte padding1;
+        byte padding2;
+    }
+
+    struct JoyDeviceEvent
+    {
+        public EventType Type;
+        public uint Timestamp;
+        public int Which;
+    }
+
+    struct JoyHatEvent
+    {
+        public EventType Type;
+        public uint Timestamp;
+        public int Which;
+        public byte Hat;
+        public HatPosition Value;
+        byte padding1;
+        byte padding2;
+    }
+
+    struct JoystickGuid
+    {
+        unsafe fixed byte data[16];
+
+        public Guid ToGuid()
+        {
+            byte[] bytes = new byte[16];
+
+            unsafe
+            {
+                fixed (byte* pdata = data)
+                {
+                    Marshal.Copy(new IntPtr(pdata), bytes, 0, bytes.Length); 
+                }
+            }
+
+            return new Guid(bytes);
+        }
     }
 
     struct KeyboardEvent
@@ -1170,6 +1526,25 @@ namespace OpenTK.Platform.SDL2
         public uint Which;
         public int X;
         public int Y;
+
+        public enum EventType : uint
+        {
+            /* Touch events */
+            FingerDown      = 0x700,
+            FingerUp,
+            FingerMotion,
+
+            /* Gesture events */
+            DollarGesture   = 0x800,
+            DollarRecord,
+            MultiGesture,
+        }
+
+        public const uint TouchMouseID = 0xffffffff;
+
+        public static class GL
+        {
+        }
     }
 
     struct Rect
@@ -1178,6 +1553,65 @@ namespace OpenTK.Platform.SDL2
         public int Y;
         public int Width;
         public int Height;
+    }
+
+    struct SysWMInfo
+    {
+        public Version Version;
+        public SysWMType Subsystem;
+        public SysInfo Info;
+
+        [StructLayout(LayoutKind.Explicit)]
+        public struct SysInfo
+        {
+            [FieldOffset(0)]
+            public WindowsInfo Windows;
+            [FieldOffset(0)]
+            public X11Info X11;
+            [FieldOffset(0)]
+            public WaylandInfo Wayland;
+            [FieldOffset(0)]
+            public DirectFBInfo DirectFB;
+            [FieldOffset(0)]
+            public CocoaInfo Cocoa;
+            [FieldOffset(0)]
+            public UIKitInfo UIKit;
+
+            public struct WindowsInfo
+            {
+                public IntPtr Window;
+            }
+
+            public struct X11Info
+            {
+                public IntPtr Display;
+                public IntPtr Window;
+            }
+
+            public struct WaylandInfo
+            {
+                public IntPtr Display;
+                public IntPtr Surface;
+                public IntPtr ShellSurface;
+            }
+
+            public struct DirectFBInfo
+            {
+                public IntPtr Dfb;
+                public IntPtr Window;
+                public IntPtr Surface;
+            }
+
+            public struct CocoaInfo
+            {
+                public IntPtr Window;
+            }
+
+            public struct UIKitInfo
+            {
+                public IntPtr Window;
+            }
+        }
     }
 
     struct TextEditingEvent

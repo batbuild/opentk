@@ -233,7 +233,7 @@ namespace OpenTK.Graphics.OpenGL4
     }
 
     /// <summary>
-    /// Used in GL.Arb.BlendEquation, GL.Arb.BlendEquationSeparate and 41 other functions
+    /// Used in GL.Arb.BlendEquationSeparate, GL.Arb.BlendFunc and 33 other functions
     /// </summary>
     public enum All : int
     {
@@ -246,6 +246,13 @@ namespace OpenTK.Graphics.OpenGL4
         Points = ((int)0x0000)        ,
         ContextCoreProfileBit = ((int)0x00000001)        ,
         ContextFlagForwardCompatibleBit = ((int)0x00000001)        ,
+        /// <summary>
+        /// Original was GL_QUERY_DEPTH_PASS_EVENT_BIT_AMD = 0x00000001
+        /// </summary>
+        QueryDepthPassEventBitAmd = ((int)0x00000001)        ,
+        /// <summary>
+        /// Original was GL_SYNC_FLUSH_COMMANDS_BIT = 0x00000001
+        /// </summary>
         SyncFlushCommandsBit = ((int)0x00000001)        ,
         VertexAttribArrayBarrierBit = ((int)0x00000001)        ,
         VertexAttribArrayBarrierBitExt = ((int)0x00000001)        ,
@@ -258,10 +265,31 @@ namespace OpenTK.Graphics.OpenGL4
         ElementArrayBarrierBitExt = ((int)0x00000002)        ,
         FragmentShaderBit = ((int)0x00000002)        ,
         FragmentShaderBitExt = ((int)0x00000002)        ,
+        /// <summary>
+        /// Original was GL_QUERY_DEPTH_FAIL_EVENT_BIT_AMD = 0x00000002
+        /// </summary>
+        QueryDepthFailEventBitAmd = ((int)0x00000002)        ,
+        /// <summary>
+        /// Original was GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT_ARB = 0x00000004
+        /// </summary>
         ContextFlagRobustAccessBitArb = ((int)0x00000004)        ,
         GeometryShaderBit = ((int)0x00000004)        ,
+        /// <summary>
+        /// Original was GL_QUERY_STENCIL_FAIL_EVENT_BIT_AMD = 0x00000004
+        /// </summary>
+        QueryStencilFailEventBitAmd = ((int)0x00000004)        ,
+        /// <summary>
+        /// Original was GL_UNIFORM_BARRIER_BIT = 0x00000004
+        /// </summary>
         UniformBarrierBit = ((int)0x00000004)        ,
         UniformBarrierBitExt = ((int)0x00000004)        ,
+        /// <summary>
+        /// Original was GL_QUERY_DEPTH_BOUNDS_FAIL_EVENT_BIT_AMD = 0x00000008
+        /// </summary>
+        QueryDepthBoundsFailEventBitAmd = ((int)0x00000008)        ,
+        /// <summary>
+        /// Original was GL_TESS_CONTROL_SHADER_BIT = 0x00000008
+        /// </summary>
         TessControlShaderBit = ((int)0x00000008)        ,
         TextureFetchBarrierBit = ((int)0x00000008)        ,
         TextureFetchBarrierBitExt = ((int)0x00000008)        ,
@@ -2176,9 +2204,37 @@ namespace OpenTK.Graphics.OpenGL4
         TessControlShader = ((int)0x8E88)        ,
         MaxTessControlUniformBlocks = ((int)0x8E89)        ,
         MaxTessEvaluationUniformBlocks = ((int)0x8E8A)        ,
+        /// <summary>
+        /// Original was GL_COMPRESSED_RGBA_BPTC_UNORM = 0x8E8C
+        /// </summary>
+        CompressedRgbaBptcUnorm = ((int)0x8E8C)        ,
+        /// <summary>
+        /// Original was GL_COMPRESSED_RGBA_BPTC_UNORM_ARB = 0x8E8C
+        /// </summary>
         CompressedRgbaBptcUnormArb = ((int)0x8E8C)        ,
+        /// <summary>
+        /// Original was GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM = 0x8E8D
+        /// </summary>
+        CompressedSrgbAlphaBptcUnorm = ((int)0x8E8D)        ,
+        /// <summary>
+        /// Original was GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB = 0x8E8D
+        /// </summary>
         CompressedSrgbAlphaBptcUnormArb = ((int)0x8E8D)        ,
+        /// <summary>
+        /// Original was GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT = 0x8E8E
+        /// </summary>
+        CompressedRgbBptcSignedFloat = ((int)0x8E8E)        ,
+        /// <summary>
+        /// Original was GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT_ARB = 0x8E8E
+        /// </summary>
         CompressedRgbBptcSignedFloatArb = ((int)0x8E8E)        ,
+        /// <summary>
+        /// Original was GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT = 0x8E8F
+        /// </summary>
+        CompressedRgbBptcUnsignedFloat = ((int)0x8E8F)        ,
+        /// <summary>
+        /// Original was GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT_ARB = 0x8E8F
+        /// </summary>
         CompressedRgbBptcUnsignedFloatArb = ((int)0x8E8F)        ,
         CopyReadBuffer = ((int)0x8F36)        ,
         CopyReadBufferBinding = ((int)0x8F36)        ,
@@ -2219,6 +2275,37 @@ namespace OpenTK.Graphics.OpenGL4
         DoubleVec2 = ((int)0x8FFC)        ,
         DoubleVec3 = ((int)0x8FFD)        ,
         DoubleVec4 = ((int)0x8FFE)        ,
+        /// <summary>
+        /// Original was GL_SAMPLER_BUFFER_AMD = 0x9001
+        /// </summary>
+        SamplerBufferAmd = ((int)0x9001)        ,
+        /// <summary>
+        /// Original was GL_INT_SAMPLER_BUFFER_AMD = 0x9002
+        /// </summary>
+        IntSamplerBufferAmd = ((int)0x9002)        ,
+        /// <summary>
+        /// Original was GL_UNSIGNED_INT_SAMPLER_BUFFER_AMD = 0x9003
+        /// </summary>
+        UnsignedIntSamplerBufferAmd = ((int)0x9003)        ,
+        /// <summary>
+        /// Original was GL_TESSELLATION_MODE_AMD = 0x9004
+        /// </summary>
+        TessellationModeAmd = ((int)0x9004)        ,
+        /// <summary>
+        /// Original was GL_TESSELLATION_FACTOR_AMD = 0x9005
+        /// </summary>
+        TessellationFactorAmd = ((int)0x9005)        ,
+        /// <summary>
+        /// Original was GL_DISCRETE_AMD = 0x9006
+        /// </summary>
+        DiscreteAmd = ((int)0x9006)        ,
+        /// <summary>
+        /// Original was GL_CONTINUOUS_AMD = 0x9007
+        /// </summary>
+        ContinuousAmd = ((int)0x9007)        ,
+        /// <summary>
+        /// Original was GL_TEXTURE_CUBE_MAP_ARRAY = 0x9009
+        /// </summary>
         TextureCubeMapArray = ((int)0x9009)        ,
         TextureCubeMapArrayArb = ((int)0x9009)        ,
         TextureBindingCubeMapArray = ((int)0x900A)        ,
@@ -2526,6 +2613,13 @@ namespace OpenTK.Graphics.OpenGL4
         AllShaderBits = unchecked((int)0xFFFFFFFF)        ,
         AllShaderBitsExt = unchecked((int)0xFFFFFFFF)        ,
         InvalidIndex = unchecked((int)0xFFFFFFFF)        ,
+        /// <summary>
+        /// Original was GL_QUERY_ALL_EVENT_BITS_AMD = 0xFFFFFFFF
+        /// </summary>
+        QueryAllEventBitsAmd = unchecked((int)0xFFFFFFFF)        ,
+        /// <summary>
+        /// Original was GL_TIMEOUT_IGNORED = 0xFFFFFFFFFFFFFFFF
+        /// </summary>
         TimeoutIgnored = unchecked((int)0xFFFFFFFFFFFFFFFF)        ,
         LayoutLinearIntel = ((int)1)        ,
         One = ((int)1)        ,
@@ -2549,6 +2643,76 @@ namespace OpenTK.Graphics.OpenGL4
         Notequal = ((int)0x0205)        ,
         Gequal = ((int)0x0206)        ,
         Always = ((int)0x0207)        ,
+    }
+
+    /// <summary>
+    /// Not used directly.
+    /// </summary>
+    public enum AmdVertexShaderTesselator : int
+    {
+        /// <summary>
+        /// Original was GL_SAMPLER_BUFFER_AMD = 0x9001
+        /// </summary>
+        SamplerBufferAmd = ((int)0x9001)        ,
+        /// <summary>
+        /// Original was GL_INT_SAMPLER_BUFFER_AMD = 0x9002
+        /// </summary>
+        IntSamplerBufferAmd = ((int)0x9002)        ,
+        /// <summary>
+        /// Original was GL_UNSIGNED_INT_SAMPLER_BUFFER_AMD = 0x9003
+        /// </summary>
+        UnsignedIntSamplerBufferAmd = ((int)0x9003)        ,
+        /// <summary>
+        /// Original was GL_TESSELLATION_MODE_AMD = 0x9004
+        /// </summary>
+        TessellationModeAmd = ((int)0x9004)        ,
+        /// <summary>
+        /// Original was GL_TESSELLATION_FACTOR_AMD = 0x9005
+        /// </summary>
+        TessellationFactorAmd = ((int)0x9005)        ,
+        /// <summary>
+        /// Original was GL_DISCRETE_AMD = 0x9006
+        /// </summary>
+        DiscreteAmd = ((int)0x9006)        ,
+        /// <summary>
+        /// Original was GL_CONTINUOUS_AMD = 0x9007
+        /// </summary>
+        ContinuousAmd = ((int)0x9007)        ,
+    }
+
+    /// <summary>
+    /// Not used directly.
+    /// </summary>
+    public enum AmdVertexShaderTessellator : int
+    {
+        /// <summary>
+        /// Original was GL_SAMPLER_BUFFER_AMD = 0x9001
+        /// </summary>
+        SamplerBufferAmd = ((int)0x9001)        ,
+        /// <summary>
+        /// Original was GL_INT_SAMPLER_BUFFER_AMD = 0x9002
+        /// </summary>
+        IntSamplerBufferAmd = ((int)0x9002)        ,
+        /// <summary>
+        /// Original was GL_UNSIGNED_INT_SAMPLER_BUFFER_AMD = 0x9003
+        /// </summary>
+        UnsignedIntSamplerBufferAmd = ((int)0x9003)        ,
+        /// <summary>
+        /// Original was GL_TESSELLATION_MODE_AMD = 0x9004
+        /// </summary>
+        TessellationModeAmd = ((int)0x9004)        ,
+        /// <summary>
+        /// Original was GL_TESSELLATION_FACTOR_AMD = 0x9005
+        /// </summary>
+        TessellationFactorAmd = ((int)0x9005)        ,
+        /// <summary>
+        /// Original was GL_DISCRETE_AMD = 0x9006
+        /// </summary>
+        DiscreteAmd = ((int)0x9006)        ,
+        /// <summary>
+        /// Original was GL_CONTINUOUS_AMD = 0x9007
+        /// </summary>
+        ContinuousAmd = ((int)0x9007)        ,
     }
 
     /// <summary>
@@ -4277,7 +4441,7 @@ namespace OpenTK.Graphics.OpenGL4
     }
 
     /// <summary>
-    /// Used in GL.BlendEquation, GL.BlendEquationSeparate
+    /// Used in GL.Arb.BlendEquation, GL.BlendEquation and 1 other function
     /// </summary>
     public enum BlendEquationMode : int
     {
@@ -4314,6 +4478,21 @@ namespace OpenTK.Graphics.OpenGL4
         OneMinusSrcAlpha = ((int)0x0303)        ,
         DstAlpha = ((int)0x0304)        ,
         OneMinusDstAlpha = ((int)0x0305)        ,
+        /// <summary>
+        /// Original was GL_DST_COLOR = 0x0306
+        /// </summary>
+        DstColor = ((int)0x0306)        ,
+        /// <summary>
+        /// Original was GL_ONE_MINUS_DST_COLOR = 0x0307
+        /// </summary>
+        OneMinusDstColor = ((int)0x0307)        ,
+        /// <summary>
+        /// Original was GL_SRC_ALPHA_SATURATE = 0x0308
+        /// </summary>
+        SrcAlphaSaturate = ((int)0x0308)        ,
+        /// <summary>
+        /// Original was GL_CONSTANT_COLOR = 0x8001
+        /// </summary>
         ConstantColor = ((int)0x8001)        ,
         ConstantColorExt = ((int)0x8001)        ,
         OneMinusConstantColor = ((int)0x8002)        ,
@@ -4610,6 +4789,21 @@ namespace OpenTK.Graphics.OpenGL4
     }
 
     /// <summary>
+    /// Used in GL.ClientWaitSync
+    /// </summary>
+    public enum ClientWaitSyncFlags : int
+    {
+        /// <summary>
+        /// Original was GL_NONE = 0
+        /// </summary>
+        None = ((int)0)        ,
+        /// <summary>
+        /// Original was GL_SYNC_FLUSH_COMMANDS_BIT = 0x00000001
+        /// </summary>
+        SyncFlushCommandsBit = ((int)0x00000001)        ,
+    }
+
+    /// <summary>
     /// Not used directly.
     /// </summary>
     public enum ClipPlaneName : int
@@ -4827,7 +5021,7 @@ namespace OpenTK.Graphics.OpenGL4
     }
 
     /// <summary>
-    /// Used in GL.DebugMessageInsert
+    /// Used in GL.DebugMessageInsert, GL.GetDebugMessageLog
     /// </summary>
     public enum DebugSeverity : int
     {
@@ -4850,7 +5044,7 @@ namespace OpenTK.Graphics.OpenGL4
     }
 
     /// <summary>
-    /// Not used directly.
+    /// Used in GL.GetDebugMessageLog
     /// </summary>
     public enum DebugSource : int
     {
@@ -4886,7 +5080,7 @@ namespace OpenTK.Graphics.OpenGL4
     }
 
     /// <summary>
-    /// Used in GL.DebugMessageInsert
+    /// Used in GL.DebugMessageInsert, GL.GetDebugMessageLog
     /// </summary>
     public enum DebugType : int
     {
@@ -5507,7 +5701,7 @@ namespace OpenTK.Graphics.OpenGL4
     }
 
     /// <summary>
-    /// Used in GL.GetBoolean, GL.GetDouble and 2 other functions
+    /// Used in GL.GetBoolean, GL.GetDouble and 3 other functions
     /// </summary>
     public enum GetIndexedPName : int
     {
@@ -5567,7 +5761,7 @@ namespace OpenTK.Graphics.OpenGL4
     }
 
     /// <summary>
-    /// Used in GL.GetBoolean, GL.GetDouble and 2 other functions
+    /// Used in GL.GetBoolean, GL.GetDouble and 3 other functions
     /// </summary>
     public enum GetPName : int
     {
@@ -6076,6 +6270,121 @@ namespace OpenTK.Graphics.OpenGL4
         InstrumentBufferPointerSgix = ((int)0x8180)        ,
         FogCoordArrayPointer = ((int)0x8456)        ,
         SecondaryColorArrayPointer = ((int)0x845D)        ,
+    }
+
+    /// <summary>
+    /// Used in GL.GetProgram
+    /// </summary>
+    public enum GetProgramParameterName : int
+    {
+        /// <summary>
+        /// Original was GL_PROGRAM_BINARY_RETRIEVABLE_HINT = 0x8257
+        /// </summary>
+        ProgramBinaryRetrievableHint = ((int)0x8257)        ,
+        /// <summary>
+        /// Original was GL_PROGRAM_SEPARABLE = 0x8258
+        /// </summary>
+        ProgramSeparable = ((int)0x8258)        ,
+        /// <summary>
+        /// Original was GL_GEOMETRY_SHADER_INVOCATIONS = 0x887F
+        /// </summary>
+        GeometryShaderInvocations = ((int)0x887F)        ,
+        /// <summary>
+        /// Original was GL_GEOMETRY_VERTICES_OUT = 0x8916
+        /// </summary>
+        GeometryVerticesOut = ((int)0x8916)        ,
+        /// <summary>
+        /// Original was GL_GEOMETRY_INPUT_TYPE = 0x8917
+        /// </summary>
+        GeometryInputType = ((int)0x8917)        ,
+        /// <summary>
+        /// Original was GL_GEOMETRY_OUTPUT_TYPE = 0x8918
+        /// </summary>
+        GeometryOutputType = ((int)0x8918)        ,
+        /// <summary>
+        /// Original was GL_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH = 0x8A35
+        /// </summary>
+        ActiveUniformBlockMaxNameLength = ((int)0x8A35)        ,
+        /// <summary>
+        /// Original was GL_ACTIVE_UNIFORM_BLOCKS = 0x8A36
+        /// </summary>
+        ActiveUniformBlocks = ((int)0x8A36)        ,
+        /// <summary>
+        /// Original was GL_DELETE_STATUS = 0x8B80
+        /// </summary>
+        DeleteStatus = ((int)0x8B80)        ,
+        /// <summary>
+        /// Original was GL_LINK_STATUS = 0x8B82
+        /// </summary>
+        LinkStatus = ((int)0x8B82)        ,
+        /// <summary>
+        /// Original was GL_VALIDATE_STATUS = 0x8B83
+        /// </summary>
+        ValidateStatus = ((int)0x8B83)        ,
+        /// <summary>
+        /// Original was GL_INFO_LOG_LENGTH = 0x8B84
+        /// </summary>
+        InfoLogLength = ((int)0x8B84)        ,
+        /// <summary>
+        /// Original was GL_ATTACHED_SHADERS = 0x8B85
+        /// </summary>
+        AttachedShaders = ((int)0x8B85)        ,
+        /// <summary>
+        /// Original was GL_ACTIVE_UNIFORMS = 0x8B86
+        /// </summary>
+        ActiveUniforms = ((int)0x8B86)        ,
+        /// <summary>
+        /// Original was GL_ACTIVE_UNIFORM_MAX_LENGTH = 0x8B87
+        /// </summary>
+        ActiveUniformMaxLength = ((int)0x8B87)        ,
+        /// <summary>
+        /// Original was GL_ACTIVE_ATTRIBUTES = 0x8B89
+        /// </summary>
+        ActiveAttributes = ((int)0x8B89)        ,
+        /// <summary>
+        /// Original was GL_ACTIVE_ATTRIBUTE_MAX_LENGTH = 0x8B8A
+        /// </summary>
+        ActiveAttributeMaxLength = ((int)0x8B8A)        ,
+        /// <summary>
+        /// Original was GL_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH = 0x8C76
+        /// </summary>
+        TransformFeedbackVaryingMaxLength = ((int)0x8C76)        ,
+        /// <summary>
+        /// Original was GL_TRANSFORM_FEEDBACK_BUFFER_MODE = 0x8C7F
+        /// </summary>
+        TransformFeedbackBufferMode = ((int)0x8C7F)        ,
+        /// <summary>
+        /// Original was GL_TRANSFORM_FEEDBACK_VARYINGS = 0x8C83
+        /// </summary>
+        TransformFeedbackVaryings = ((int)0x8C83)        ,
+        /// <summary>
+        /// Original was GL_TESS_CONTROL_OUTPUT_VERTICES = 0x8E75
+        /// </summary>
+        TessControlOutputVertices = ((int)0x8E75)        ,
+        /// <summary>
+        /// Original was GL_TESS_GEN_MODE = 0x8E76
+        /// </summary>
+        TessGenMode = ((int)0x8E76)        ,
+        /// <summary>
+        /// Original was GL_TESS_GEN_SPACING = 0x8E77
+        /// </summary>
+        TessGenSpacing = ((int)0x8E77)        ,
+        /// <summary>
+        /// Original was GL_TESS_GEN_VERTEX_ORDER = 0x8E78
+        /// </summary>
+        TessGenVertexOrder = ((int)0x8E78)        ,
+        /// <summary>
+        /// Original was GL_TESS_GEN_POINT_MODE = 0x8E79
+        /// </summary>
+        TessGenPointMode = ((int)0x8E79)        ,
+        /// <summary>
+        /// Original was GL_MAX_COMPUTE_WORK_GROUP_SIZE = 0x91BF
+        /// </summary>
+        MaxComputeWorkGroupSize = ((int)0x91BF)        ,
+        /// <summary>
+        /// Original was GL_ACTIVE_ATOMIC_COUNTER_BUFFERS = 0x92D9
+        /// </summary>
+        ActiveAtomicCounterBuffers = ((int)0x92D9)        ,
     }
 
     /// <summary>
@@ -6985,6 +7294,34 @@ namespace OpenTK.Graphics.OpenGL4
     }
 
     /// <summary>
+    /// Not used directly.
+    /// </summary>
+    [Flags]
+    public enum OcclusionQueryEventMaskAmd : int
+    {
+        /// <summary>
+        /// Original was GL_QUERY_DEPTH_PASS_EVENT_BIT_AMD = 0x00000001
+        /// </summary>
+        QueryDepthPassEventBitAmd = ((int)0x00000001)        ,
+        /// <summary>
+        /// Original was GL_QUERY_DEPTH_FAIL_EVENT_BIT_AMD = 0x00000002
+        /// </summary>
+        QueryDepthFailEventBitAmd = ((int)0x00000002)        ,
+        /// <summary>
+        /// Original was GL_QUERY_STENCIL_FAIL_EVENT_BIT_AMD = 0x00000004
+        /// </summary>
+        QueryStencilFailEventBitAmd = ((int)0x00000004)        ,
+        /// <summary>
+        /// Original was GL_QUERY_DEPTH_BOUNDS_FAIL_EVENT_BIT_AMD = 0x00000008
+        /// </summary>
+        QueryDepthBoundsFailEventBitAmd = ((int)0x00000008)        ,
+        /// <summary>
+        /// Original was GL_QUERY_ALL_EVENT_BITS_AMD = 0xFFFFFFFF
+        /// </summary>
+        QueryAllEventBitsAmd = unchecked((int)0xFFFFFFFF)        ,
+    }
+
+    /// <summary>
     /// Used in GL.ColorP3, GL.ColorP4 and 17 other functions
     /// </summary>
     public enum PackedPointerType : int
@@ -7206,6 +7543,21 @@ namespace OpenTK.Graphics.OpenGL4
         CompressedSignedRedRgtc1 = ((int)0x8DBC)        ,
         CompressedRgRgtc2 = ((int)0x8DBD)        ,
         CompressedSignedRgRgtc2 = ((int)0x8DBE)        ,
+        /// <summary>
+        /// Original was GL_COMPRESSED_RGBA_BPTC_UNORM = 0x8E8C
+        /// </summary>
+        CompressedRgbaBptcUnorm = ((int)0x8E8C)        ,
+        /// <summary>
+        /// Original was GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT = 0x8E8E
+        /// </summary>
+        CompressedRgbBptcSignedFloat = ((int)0x8E8E)        ,
+        /// <summary>
+        /// Original was GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT = 0x8E8F
+        /// </summary>
+        CompressedRgbBptcUnsignedFloat = ((int)0x8E8F)        ,
+        /// <summary>
+        /// Original was GL_R8_SNORM = 0x8F94
+        /// </summary>
         R8Snorm = ((int)0x8F94)        ,
         Rg8Snorm = ((int)0x8F95)        ,
         Rgb8Snorm = ((int)0x8F96)        ,
@@ -7541,7 +7893,7 @@ namespace OpenTK.Graphics.OpenGL4
     }
 
     /// <summary>
-    /// Used in GL.GetProgram
+    /// Not used directly.
     /// </summary>
     public enum ProgramParameter : int
     {
@@ -7576,6 +7928,21 @@ namespace OpenTK.Graphics.OpenGL4
 
     /// <summary>
     /// Used in GL.ProgramParameter
+    /// </summary>
+    public enum ProgramParameterName : int
+    {
+        /// <summary>
+        /// Original was GL_PROGRAM_BINARY_RETRIEVABLE_HINT = 0x8257
+        /// </summary>
+        ProgramBinaryRetrievableHint = ((int)0x8257)        ,
+        /// <summary>
+        /// Original was GL_PROGRAM_SEPARABLE = 0x8258
+        /// </summary>
+        ProgramSeparable = ((int)0x8258)        ,
+    }
+
+    /// <summary>
+    /// Not used directly.
     /// </summary>
     public enum ProgramParameterPName : int
     {
@@ -7868,7 +8235,7 @@ namespace OpenTK.Graphics.OpenGL4
     }
 
     /// <summary>
-    /// Used in GL.GetSamplerParameter, GL.SamplerParameter
+    /// Not used directly.
     /// </summary>
     public enum SamplerParameter : int
     {
@@ -7883,6 +8250,61 @@ namespace OpenTK.Graphics.OpenGL4
         TextureMaxAnisotropyExt = ((int)0x84FE)        ,
         TextureLodBias = ((int)0x8501)        ,
         TextureCompareMode = ((int)0x884C)        ,
+        TextureCompareFunc = ((int)0x884D)        ,
+    }
+
+    /// <summary>
+    /// Used in GL.GetSamplerParameter, GL.SamplerParameter and 1 other function
+    /// </summary>
+    public enum SamplerParameterName : int
+    {
+        /// <summary>
+        /// Original was GL_TextureBorderColor = 0x1004
+        /// </summary>
+        TextureBorderColor = ((int)0x1004)        ,
+        /// <summary>
+        /// Original was GL_TextureMagFilter = 0x2800
+        /// </summary>
+        TextureMagFilter = ((int)0x2800)        ,
+        /// <summary>
+        /// Original was GL_TextureMinFilter = 0x2801
+        /// </summary>
+        TextureMinFilter = ((int)0x2801)        ,
+        /// <summary>
+        /// Original was GL_TextureWrapS = 0x2802
+        /// </summary>
+        TextureWrapS = ((int)0x2802)        ,
+        /// <summary>
+        /// Original was GL_TextureWrapT = 0x2803
+        /// </summary>
+        TextureWrapT = ((int)0x2803)        ,
+        /// <summary>
+        /// Original was GL_TextureWrapR = 0x8072
+        /// </summary>
+        TextureWrapR = ((int)0x8072)        ,
+        /// <summary>
+        /// Original was GL_TextureMinLod = 0x813A
+        /// </summary>
+        TextureMinLod = ((int)0x813A)        ,
+        /// <summary>
+        /// Original was GL_TextureMaxLod = 0x813B
+        /// </summary>
+        TextureMaxLod = ((int)0x813B)        ,
+        /// <summary>
+        /// Original was GL_TextureMaxAnisotropyExt = 0x84FE
+        /// </summary>
+        TextureMaxAnisotropyExt = ((int)0x84FE)        ,
+        /// <summary>
+        /// Original was GL_TextureLodBias = 0x8501
+        /// </summary>
+        TextureLodBias = ((int)0x8501)        ,
+        /// <summary>
+        /// Original was GL_TextureCompareMode = 0x884C
+        /// </summary>
+        TextureCompareMode = ((int)0x884C)        ,
+        /// <summary>
+        /// Original was GL_TextureCompareFunc = 0x884D
+        /// </summary>
         TextureCompareFunc = ((int)0x884D)        ,
     }
 
@@ -7968,7 +8390,7 @@ namespace OpenTK.Graphics.OpenGL4
     }
 
     /// <summary>
-    /// Used in GL.BindImageTexture, GL.TexBuffer and 6 other functions
+    /// Used in GL.BindImageTexture, GL.GetInternalformat and 7 other functions
     /// </summary>
     public enum SizedInternalFormat : int
     {
@@ -8076,7 +8498,7 @@ namespace OpenTK.Graphics.OpenGL4
     /// <summary>
     /// Used in GL.GetSync
     /// </summary>
-    public enum SyncParameter : int
+    public enum SyncParameterName : int
     {
         ObjectType = ((int)0x9112)        ,
         SyncCondition = ((int)0x9113)        ,
@@ -9690,6 +10112,25 @@ namespace OpenTK.Graphics.OpenGL4
         FramebufferBarrierBit = ((int)0x00000400)        ,
         TransformFeedbackBarrierBit = ((int)0x00000800)        ,
         AtomicCounterBarrierBit = ((int)0x00001000)        ,
+        /// <summary>
+        /// Original was GL_COMPRESSED_RGBA_BPTC_UNORM = 0x8E8C
+        /// </summary>
+        CompressedRgbaBptcUnorm = ((int)0x8E8C)        ,
+        /// <summary>
+        /// Original was GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM = 0x8E8D
+        /// </summary>
+        CompressedSrgbAlphaBptcUnorm = ((int)0x8E8D)        ,
+        /// <summary>
+        /// Original was GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT = 0x8E8E
+        /// </summary>
+        CompressedRgbBptcSignedFloat = ((int)0x8E8E)        ,
+        /// <summary>
+        /// Original was GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT = 0x8E8F
+        /// </summary>
+        CompressedRgbBptcUnsignedFloat = ((int)0x8E8F)        ,
+        /// <summary>
+        /// Original was GL_MAX_IMAGE_UNITS = 0x8F38
+        /// </summary>
         MaxImageUnits = ((int)0x8F38)        ,
         MaxCombinedImageUnitsAndFragmentOutputs = ((int)0x8F39)        ,
         ImageBindingName = ((int)0x8F3A)        ,
@@ -10141,7 +10582,7 @@ namespace OpenTK.Graphics.OpenGL4
     }
 
     /// <summary>
-    /// Used in GL.Arb.GetVertexAttrib
+    /// Used in GL.Arb.GetVertexAttribL
     /// </summary>
     public enum VertexAttribParameterArb : int
     {
@@ -10238,12 +10679,11 @@ namespace OpenTK.Graphics.OpenGL4
     }
 
     /// <summary>
-    /// Used in GL.ClientWaitSync, GL.WaitSync
+    /// Used in GL.FenceSync, GL.WaitSync
     /// </summary>
     public enum WaitSyncFlags : int
     {
         None = ((int)0)        ,
-        SyncFlushCommandsBit = ((int)0x00000001)        ,
     }
 
     /// <summary>

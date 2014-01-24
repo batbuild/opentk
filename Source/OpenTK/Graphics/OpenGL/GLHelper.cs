@@ -1,10 +1,30 @@
-#region --- License ---
-/* Copyright (c) 2006-2008 the OpenTK team.
- * See license.txt for license info
- * 
- * Contributions by Andy Gill.
- */
+#region License
+//
+// The Open Toolkit Library License
+//
+// Copyright (c) 2006 - 2013 Stefanos Apostolopoulos for the Open Toolkit Library
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights to 
+// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+// the Software, and to permit persons to whom the Software is furnished to do
+// so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+//
 #endregion
+
 
 #region --- Using Directives ---
 
@@ -58,12 +78,20 @@ namespace OpenTK.Graphics.OpenGL
         static SortedList<string, bool> AvailableExtensions = new SortedList<string, bool>();
         static readonly object sync_root = new object();
 
+        static IntPtr[] EntryPoints;
+        static string[] EntryPointNames;
+
         #endregion
 
-        #region --- Constructor ---
+        #region Constructors
 
-        static GL()
+        /// <summary>
+        /// Constructs a new instance.
+        /// </summary>
+        public GL()
         {
+            EntryPointsInstance = EntryPoints;
+            EntryPointNamesInstance = EntryPointNames;
         }
 
         #endregion
@@ -108,7 +136,7 @@ namespace OpenTK.Graphics.OpenGL
 
         public static void Color3(Color color)
         {
-            GL.Color3(color.R, color.G, color.B);
+			GL.Color3(color.R, color.G, color.B);
         }
 
         public static void Color4(Color color)
@@ -664,7 +692,7 @@ namespace OpenTK.Graphics.OpenGL
         public static string GetActiveAttrib(int program, int index, out int size, out ActiveAttribType type)
         {
             int length;
-            GetProgram(program, OpenTK.Graphics.OpenGL.ProgramParameter.ActiveAttributeMaxLength, out length);
+            GetProgram(program, OpenTK.Graphics.OpenGL.GetProgramParameterName.ActiveAttributeMaxLength, out length);
             StringBuilder sb = new StringBuilder(length == 0 ? 1 : length * 2);
 
             GetActiveAttrib(program, index, sb.Capacity, out length, out size, out type, sb);
@@ -678,7 +706,7 @@ namespace OpenTK.Graphics.OpenGL
         public static string GetActiveUniform(int program, int uniformIndex, out int size, out ActiveUniformType type)
         {
             int length;
-            GetProgram(program, OpenTK.Graphics.OpenGL.ProgramParameter.ActiveUniformMaxLength, out length);
+            GetProgram(program, OpenTK.Graphics.OpenGL.GetProgramParameterName.ActiveUniformMaxLength, out length);
 
             StringBuilder sb = new StringBuilder(length == 0 ? 1 : length);
             GetActiveUniform(program, uniformIndex, sb.Capacity, out length, out size, out type, sb);
@@ -692,7 +720,7 @@ namespace OpenTK.Graphics.OpenGL
         public static string GetActiveUniformName(int program, int uniformIndex)
         {
             int length;
-            GetProgram(program, OpenTK.Graphics.OpenGL.ProgramParameter.ActiveUniformMaxLength, out length);
+            GetProgram(program, OpenTK.Graphics.OpenGL.GetProgramParameterName.ActiveUniformMaxLength, out length);
             StringBuilder sb = new StringBuilder(length == 0 ? 1 : length * 2);
 
             GetActiveUniformName(program, uniformIndex, sb.Capacity, out length, sb);
@@ -706,7 +734,7 @@ namespace OpenTK.Graphics.OpenGL
         public static string GetActiveUniformBlockName(int program, int uniformIndex)
         {
             int length;
-            GetProgram(program, OpenTK.Graphics.OpenGL.ProgramParameter.ActiveUniformBlockMaxNameLength, out length);
+            GetProgram(program, OpenTK.Graphics.OpenGL.GetProgramParameterName.ActiveUniformBlockMaxNameLength, out length);
             StringBuilder sb = new StringBuilder(length == 0 ? 1 : length * 2);
 
             GetActiveUniformBlockName(program, uniformIndex, sb.Capacity, out length, sb);
@@ -778,7 +806,7 @@ namespace OpenTK.Graphics.OpenGL
             unsafe
             {
                 int length;
-                GL.GetProgram(program, OpenTK.Graphics.OpenGL.ProgramParameter.InfoLogLength, out length); if (length == 0)
+                GL.GetProgram(program, OpenTK.Graphics.OpenGL.GetProgramParameterName.InfoLogLength, out length); if (length == 0)
                 {
                     info = String.Empty;
                     return;
@@ -911,11 +939,13 @@ namespace OpenTK.Graphics.OpenGL
 
         #region Rect
 
+        [CLSCompliant(false)]
         public static void Rect(RectangleF rect)
         {
             GL.Rect(rect.Left, rect.Top, rect.Right, rect.Bottom);
         }
 
+        [CLSCompliant(false)]
         public static void Rect(Rectangle rect)
         {
             GL.Rect(rect.Left, rect.Top, rect.Right, rect.Bottom);
@@ -931,348 +961,6 @@ namespace OpenTK.Graphics.OpenGL
         public static void Rect(ref Rectangle rect)
         {
             GL.Rect(rect.Left, rect.Top, rect.Right, rect.Bottom);
-        }
-
-        #endregion
-
-        #region GenBuffer
-
-        /// <summary>[requires: v1.5]
-        /// Generates a single buffer object name
-        /// </summary>
-        /// <returns>The generated buffer object name</returns>
-        public static int GenBuffer()
-        {
-            int id;
-            GenBuffers(1, out id);
-            return id;
-        }
-
-        #endregion
-
-        #region DeleteBuffer
-
-        /// <summary>[requires: v1.5]
-        /// Deletes a single buffer object
-        /// </summary>
-        /// <param name="id">The buffer object to be deleted</param>
-        public static void DeleteBuffer(int id)
-        {
-            DeleteBuffers(1, ref id);
-        }
-
-        /// <summary>[requires: v1.5]
-        /// Deletes a single buffer object
-        /// </summary>
-        /// <param name="id">The buffer object to be deleted</param>
-        [CLSCompliant(false)]
-        public static void DeleteBuffer(uint id)
-        {
-            DeleteBuffers(1, ref id);
-        }
-
-        #endregion
-
-        #region GenFramebuffer
-
-        /// <summary>[requires: v3.0 and ARB_framebuffer_object]
-        /// Generates a single framebuffer object name
-        /// </summary>
-        /// <returns>The generated framebuffer object name</returns>
-        public static int GenFramebuffer()
-        {
-            int id;
-            GenFramebuffers(1, out id);
-            return id;
-        }
-
-        #endregion
-
-        #region DeleteFramebuffer
-
-        /// <summary>[requires: v3.0 and ARB_framebuffer_object]
-        /// Deletes a single framebuffer object
-        /// </summary>
-        /// <param name="id">The framebuffer object to be deleted</param>
-        public static void DeleteFramebuffer(int id)
-        {
-            DeleteFramebuffers(1, ref id);
-        }
-
-        /// <summary>[requires: v3.0 and ARB_framebuffer_object]
-        /// Deletes a single framebuffer object
-        /// </summary>
-        /// <param name="id">The framebuffer object to be deleted</param>
-        [CLSCompliant(false)]
-        public static void DeleteFramebuffer(uint id)
-        {
-            DeleteFramebuffers(1, ref id);
-        }
-
-        #endregion
-
-        #region GenProgramPipeline
-
-        /// <summary>[requires: v4.1 and ARB_separate_shader_objects]
-        /// Generates a single single pipeline object name
-        /// </summary>
-        /// <returns>The generated single pipeline object name</returns>
-        public static int GenProgramPipeline()
-        {
-            int id;
-            GenProgramPipelines(1, out id);
-            return id;
-        }
-
-        #endregion
-
-        #region DeleteProgramPipeline
-
-        /// <summary>[requires: v4.1 and ARB_separate_shader_objects]
-        /// Deletes a single program pipeline object
-        /// </summary>
-        /// <param name="id">The program pipeline object to be deleted</param>
-        public static void DeleteProgramPipeline(int id)
-        {
-            DeleteProgramPipelines(1, ref id);
-        }
-
-        /// <summary>[requires: v4.1 and ARB_separate_shader_objects]
-        /// Deletes a single program pipeline object
-        /// </summary>
-        /// <param name="id">The program pipeline object to be deleted</param>
-        [CLSCompliant(false)]
-        public static void DeleteProgramPipeline(uint id)
-        {
-            DeleteProgramPipelines(1, ref id);
-        }
-
-        #endregion
-
-        #region GenQuery
-
-        /// <summary>[requires: v1.5]
-        /// Generates a single query object name
-        /// </summary>
-        /// <returns>The generated query object name</returns>
-        public static int GenQuery()
-        {
-            int id;
-            GenQueries(1, out id);
-            return id;
-        }
-
-        #endregion
-
-        #region DeleteQuery
-
-        /// <summary>[requires: v1.5]
-        /// Deletes a single query object
-        /// </summary>
-        /// <param name="id">The query object to be deleted</param>
-        public static void DeleteQuery(int id)
-        {
-            DeleteQueries(1, ref id);
-        }
-
-        /// <summary>
-        /// Deletes a single query object
-        /// </summary>
-        /// <param name="id">The query object to be deleted</param>
-        [CLSCompliant(false)]
-        public static void DeleteQuery(uint id)
-        {
-            DeleteQueries(1, ref id);
-        }
-
-        #endregion
-
-        #region GenRenderbuffer
-
-        /// <summary>[requires: v3.0 and ARB_framebuffer_object]
-        /// Generates a single renderbuffer object name
-        /// </summary>
-        /// <returns>The generated renderbuffer object name</returns>
-        public static int GenRenderbuffer()
-        {
-            int id;
-            GenRenderbuffers(1, out id);
-            return id;
-        }
-
-        #endregion
-
-        #region DeleteRenderbuffer
-
-        /// <summary>[requires: v3.0 and ARB_framebuffer_object]
-        /// Deletes a single renderbuffer object
-        /// </summary>
-        /// <param name="id">The renderbuffer object to be deleted</param>
-        public static void DeleteRenderbuffer(int id)
-        {
-            DeleteRenderbuffers(1, ref id);
-        }
-
-        /// <summary>[requires: v3.0 and ARB_framebuffer_object]
-        /// Deletes a single renderbuffer object
-        /// </summary>
-        /// <param name="id">The renderbuffer object to be deleted</param>
-        [CLSCompliant(false)]
-        public static void DeleteRenderbuffer(uint id)
-        {
-            DeleteRenderbuffers(1, ref id);
-        }
-
-        #endregion
-
-        #region GenSampler
-
-        /// <summary>
-        /// Generates a single sampler object name
-        /// </summary>
-        /// <returns>The generated sampler object name</returns>
-        public static int GenSampler()
-        {
-            int id;
-            GenSamplers(1, out id);
-            return id;
-        }
-
-        #endregion
-
-        #region DeleteSampler
-
-        /// <summary>
-        /// Deletes a single sampler object
-        /// </summary>
-        /// <param name="id">The sampler object to be deleted</param>
-        public static void DeleteSampler(int id)
-        {
-            DeleteSamplers(1, ref id);
-        }
-
-        /// <summary>
-        /// Deletes a single sampler object
-        /// </summary>
-        /// <param name="id">The sampler object to be deleted</param>
-        [CLSCompliant(false)]
-        public static void DeleteSampler(uint id)
-        {
-            DeleteSamplers(1, ref id);
-        }
-
-        #endregion
-
-        #region GenTexture
-
-        /// <summary>[requires: v1.1]
-        /// Generate a single texture name
-        /// </summary>
-        /// <returns>The generated texture name</returns>
-        public static int GenTexture()
-        {
-            int id;
-            GenTextures(1, out id);
-            return id;
-        }
-
-        #endregion
-
-        #region DeleteTexture
-
-        /// <summary>[requires: v1.1]
-        /// Delete a single texture name
-        /// </summary>
-        /// <param name="id">The texture to be deleted</param>
-        public static void DeleteTexture(int id)
-        {
-            DeleteTextures(1, ref id);
-        }
-
-        /// <summary>[requires: v1.1]
-        /// Delete a single texture name
-        /// </summary>
-        /// <param name="id">The texture to be deleted</param>
-        [CLSCompliant(false)]
-        public static void DeleteTexture(uint id)
-        {
-            DeleteTextures(1, ref id);
-        }
-
-        #endregion
-
-        #region GenTransformFeedback
-
-        /// <summary>[requires: v1.2 and ARB_transform_feedback2]
-        /// Generates a single transform feedback object name
-        /// </summary>
-        /// <returns>The generated transform feedback object name</returns>
-        public static int GenTransformFeedback()
-        {
-            int id;
-            GenTransformFeedback(1, out id);
-            return id;
-        }
-
-        #endregion
-
-        #region DeleteTransformFeedback
-
-        /// <summary>[requires: v1.2 and ARB_transform_feedback2]
-        /// Deletes a single transform feedback object
-        /// </summary>
-        /// <param name="id">The transform feedback object to be deleted</param>
-        public static void DeleteTransformFeedback(int id)
-        {
-            DeleteTransformFeedback(1, ref id);
-        }
-
-        /// <summary>[requires: v1.2 and ARB_transform_feedback2]
-        /// Deletes a single transform feedback object
-        /// </summary>
-        /// <param name="id">The transform feedback object to be deleted</param>
-        [CLSCompliant(false)]
-        public static void DeleteTransformFeedback(uint id)
-        {
-            DeleteTransformFeedback(1, ref id);
-        }
-
-        #endregion
-
-        #region GenVertexArray
-
-        /// <summary>[requires: v3.0 and ARB_vertex_array_object]
-        /// Generates a single vertex array object name
-        /// </summary>
-        /// <returns>The generated vertex array object name</returns>
-        public static int GenVertexArray()
-        {
-            int id;
-            GenVertexArrays(1, out id);
-            return id;
-        }
-
-        #endregion
-
-        #region DeleteVertexArray
-
-        /// <summary>[requires: v3.0 and ARB_vertex_array_object]
-        /// Deletes a single vertex array object
-        /// </summary>
-        /// <param name="id">The vertex array object to be deleted</param>
-        public static void DeleteVertexArray(int id)
-        {
-            DeleteVertexArrays(1, ref id);
-        }
-
-        /// <summary>[requires: v3.0 and ARB_vertex_array_object]
-        /// Deletes a single vertex array object
-        /// </summary>
-        /// <param name="id">The vertex array object to be deleted</param>
-        [CLSCompliant(false)]
-        public static void DeleteVertexArray(uint id)
-        {
-            DeleteVertexArrays(1, ref id);
         }
 
         #endregion
@@ -1317,15 +1005,6 @@ namespace OpenTK.Graphics.OpenGL
         public static void VertexAttribPointer(int index, int size, VertexAttribPointerType type, bool normalized, int stride, int offset)
         {
             VertexAttribPointer(index, size, type, normalized, stride, (IntPtr)offset);
-        }
-
-        #endregion
-
-        #region DrawElements
-
-        public static void DrawElements(PrimitiveType mode, int count, DrawElementsType type, int offset)
-        {
-            DrawElements(mode, count, type, new IntPtr(offset));
         }
 
         #endregion
@@ -1458,28 +1137,24 @@ namespace OpenTK.Graphics.OpenGL
 
         #region Obsolete
 
-        [AutoGenerated(Category = "Version11Deprecated", Version = "1.1", EntryPoint = "glDisableClientState")]
         [Obsolete("Use DisableClientState(ArrayCap) instead")]
         public static void DisableClientState(OpenTK.Graphics.OpenGL.EnableCap array)
         {
             DisableClientState((ArrayCap)array);
         }
 
-        [AutoGenerated(Category = "Version11Deprecated", Version = "1.1", EntryPoint = "glEnableClientState")]
         [Obsolete("Use EnableClientState(ArrayCap) instead.")]
         public static void EnableClientState(OpenTK.Graphics.OpenGL.EnableCap array)
         {
             EnableClientState((ArrayCap)array);
         }
 
-        [AutoGenerated(Category = "ArbUniformBufferObject", Version = "2.0", EntryPoint = "glGetActiveUniformsiv")]
         [Obsolete("Use GetActiveUniforms(..., ActiveUniformParameter, ...) instead.")]
         public static void GetActiveUniforms(Int32 program, Int32 uniformCount, Int32[] uniformIndices, ArbUniformBufferObject pname, [OutAttribute] Int32[] @params)
         {
             GetActiveUniforms(program, uniformCount, uniformIndices, (ActiveUniformParameter)pname, @params);
         }
 
-        [AutoGenerated(Category = "ArbUniformBufferObject", Version = "2.0", EntryPoint = "glGetActiveUniformsiv")]
         [Obsolete("Use GetActiveUniforms(..., ActiveUniformParameter, ...) instead.")]
         public static void GetActiveUniforms(Int32 program, Int32 uniformCount, ref Int32 uniformIndices, ArbUniformBufferObject pname, [OutAttribute] out Int32 @params)
         {
@@ -1487,7 +1162,6 @@ namespace OpenTK.Graphics.OpenGL
         }
 
         [System.CLSCompliant(false)]
-        [AutoGenerated(Category = "ArbUniformBufferObject", Version = "2.0", EntryPoint = "glGetActiveUniformsiv")]
         [Obsolete("Use GetActiveUniforms(..., ActiveUniformParameter, ...) instead.")]
         public static unsafe void GetActiveUniforms(Int32 program, Int32 uniformCount, Int32* uniformIndices, ArbUniformBufferObject pname, [OutAttribute] Int32* @params)
         {
@@ -1495,7 +1169,6 @@ namespace OpenTK.Graphics.OpenGL
         }
 
         [System.CLSCompliant(false)]
-        [AutoGenerated(Category = "ArbUniformBufferObject", Version = "2.0", EntryPoint = "glGetActiveUniformsiv")]
         [Obsolete("Use GetActiveUniforms(..., ActiveUniformParameter, ...) instead.")]
         public static void GetActiveUniforms(UInt32 program, Int32 uniformCount, UInt32[] uniformIndices, ArbUniformBufferObject pname, [OutAttribute] Int32[] @params)
         {
@@ -1503,7 +1176,6 @@ namespace OpenTK.Graphics.OpenGL
         }
 
         [System.CLSCompliant(false)]
-        [AutoGenerated(Category = "ArbUniformBufferObject", Version = "2.0", EntryPoint = "glGetActiveUniformsiv")]
         [Obsolete("Use GetActiveUniforms(..., ActiveUniformParameter, ...) instead.")]
         public static void GetActiveUniforms(UInt32 program, Int32 uniformCount, ref UInt32 uniformIndices, ArbUniformBufferObject pname, [OutAttribute] out Int32 @params)
         {
@@ -1511,23 +1183,57 @@ namespace OpenTK.Graphics.OpenGL
         }
 
         [System.CLSCompliant(false)]
-        [AutoGenerated(Category = "ArbUniformBufferObject", Version = "2.0", EntryPoint = "glGetActiveUniformsiv")]
         [Obsolete("Use GetActiveUniforms(..., ActiveUniformParameter, ...) instead.")]
         public static unsafe void GetActiveUniforms(UInt32 program, Int32 uniformCount, UInt32* uniformIndices, ArbUniformBufferObject pname, [OutAttribute] Int32* @params)
         {
             GetActiveUniforms(program, uniformCount, uniformIndices, (ActiveUniformParameter)pname, @params);
         }
 
+        [Obsolete("Use strongly-typed overload instead")]
+		public static void GetBufferParameteri64(Version32 target, Version32 pname, [OutAttribute] Int64[] @params)
+        {
+            GL.GetBufferParameter((BufferTarget)target, (BufferParameterName)pname, @params);
+        }
+
+        [Obsolete("Use strongly-typed overload instead")]
+		public static void GetBufferParameteri64(Version32 target, Version32 pname, out Int64 @params)
+        {
+            GL.GetBufferParameter((BufferTarget)target, (BufferParameterName)pname, out @params);
+        }
+
+        [Obsolete("Use strongly-typed overload instead")]
+		[CLSCompliant(false)]
+		public static unsafe void GetBufferParameteri64(Version32 target, Version32 pname, [OutAttribute] Int64* @params)
+        {
+            GL.GetBufferParameter((BufferTarget)target, (BufferParameterName)pname, @params);
+        }
+
+        [Obsolete("Use GL.Arb.FramebufferTextureFace instead (OpenGL spec bug)")]
+		public static void FramebufferTextureFace(Version32 target, Version32 attachment,
+            int texture, int level, Version32 face)
+        {
+            Arb.FramebufferTextureFace((FramebufferTarget)target,
+                (FramebufferAttachment)attachment, texture, level, (TextureTarget)face);
+        }
+
+        [Obsolete("Use GL.Arb.FramebufferTextureFace instead (OpenGL spec bug)")]
+		[CLSCompliant(false)]
+		public static void FramebufferTextureFace(Version32 target, Version32 attachment,
+			uint texture, int level, Version32 face)
+        {
+            Arb.FramebufferTextureFace((FramebufferTarget)target,
+                (FramebufferAttachment)attachment, texture, level, (TextureTarget)face);
+        }
+
+
         public static partial class Arb
         {
-            [AutoGenerated(Category = "ArbGeometryShader4", Version = "3.0", EntryPoint = "glProgramParameteriARB")]
             [Obsolete("Use ProgramParameter(..., AssemblyProgramParameterArb, ...) instead.")]
             public static void ProgramParameter(Int32 program, ArbGeometryShader4 pname, Int32 value)
             {
                 ProgramParameter(program, (AssemblyProgramParameterArb)pname, value);
             }
 
-            [AutoGenerated(Category = "ArbGeometryShader4", Version = "3.0", EntryPoint = "glProgramParameteriARB")]
             [Obsolete("Use ProgramParameter(..., AssemblyProgramParameterArb, ...) instead.")]
             [CLSCompliant(false)]
             public static void ProgramParameter(UInt32 program, ArbGeometryShader4 pname, Int32 value)
@@ -1538,14 +1244,12 @@ namespace OpenTK.Graphics.OpenGL
 
         public static partial class Ext
         {
-            [AutoGenerated(Category = "EXT_geometry_shader4", Version = "2.0", EntryPoint = "glProgramParameteriEXT")]
             [Obsolete("Use ProgramParameter(..., AssemblyProgramParameterArb, ...) instead.")]
             public static void ProgramParameter(Int32 program, ExtGeometryShader4 pname, Int32 value)
             {
                 ProgramParameter(program, (AssemblyProgramParameterArb)pname, value);
             }
 
-            [AutoGenerated(Category = "ArbGeometryShader4", Version = "3.0", EntryPoint = "glProgramParameteriARB")]
             [Obsolete("Use ProgramParameter(..., AssemblyProgramParameterArb, ...) instead.")]
             [CLSCompliant(false)]
             public static void ProgramParameter(UInt32 program, ExtGeometryShader4 pname, Int32 value)

@@ -28,18 +28,22 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
+
+using OpenTK.Graphics;
+using OpenTK.Input;
 
 namespace OpenTK.Platform.Windows
 {
-    using Graphics;
-    using OpenTK.Input;
 
-    class WinFactory : IPlatformFactory 
+    class WinFactory : PlatformFactoryBase
     {
-        bool disposed;
         readonly object SyncRoot = new object();
         IInputDriver2 inputDriver;
+
+        internal static IntPtr OpenGLHandle { get; private set; }
+        const string OpenGLName = "OPENGL32.DLL";
 
         public WinFactory()
         {
@@ -48,38 +52,57 @@ namespace OpenTK.Platform.Windows
                 throw new PlatformNotSupportedException("OpenTK requires Windows XP or higher");
             }
 
+            // Dynamically load opengl32.dll in order to use the extension loading capabilities of Wgl.
+            // Note: opengl32.dll must be loaded before gdi32.dll, otherwise strange failures may occur
+            // (such as "error: 2000" when calling wglSetPixelFormat or slowness/lag on specific GPUs).
+            LoadOpenGL();
+
             if (System.Environment.OSVersion.Version.Major >= 6)
             {
-                // Enable high-dpi support
-                // Only available on Windows Vista and higher
-                bool result = Functions.SetProcessDPIAware();
-                Debug.Print("SetProcessDPIAware() returned {0}", result);
+                if (Toolkit.Options.EnableHighResolution)
+                {
+                    // Enable high-dpi support
+                    // Only available on Windows Vista and higher
+                    bool result = Functions.SetProcessDPIAware();
+                    Debug.Print("SetProcessDPIAware() returned {0}", result);
+                }
             }
+        }
+
+        static void LoadOpenGL()
+        {
+            OpenGLHandle = Functions.LoadLibrary(OpenGLName);
+            if (OpenGLHandle == IntPtr.Zero)
+            {
+                throw new ApplicationException(String.Format("LoadLibrary(\"{0}\") call failed with code {1}",
+                    OpenGLName, Marshal.GetLastWin32Error()));
+            }
+            Debug.WriteLine(String.Format("Loaded opengl32.dll: {0}", OpenGLHandle));
         }
 
         #region IPlatformFactory Members
 
-        public virtual INativeWindow CreateNativeWindow(int x, int y, int width, int height, string title, GraphicsMode mode, GameWindowFlags options, DisplayDevice device)
+        public override INativeWindow CreateNativeWindow(int x, int y, int width, int height, string title, GraphicsMode mode, GameWindowFlags options, DisplayDevice device)
         {
             return new WinGLNative(x, y, width, height, title, options, device);
         }
 
-        public virtual IDisplayDeviceDriver CreateDisplayDeviceDriver()
+        public override IDisplayDeviceDriver CreateDisplayDeviceDriver()
         {
             return new WinDisplayDeviceDriver();
         }
 
-        public virtual IGraphicsContext CreateGLContext(GraphicsMode mode, IWindowInfo window, IGraphicsContext shareContext, bool directRendering, int major, int minor, GraphicsContextFlags flags)
+        public override IGraphicsContext CreateGLContext(GraphicsMode mode, IWindowInfo window, IGraphicsContext shareContext, bool directRendering, int major, int minor, GraphicsContextFlags flags)
         {
             return new WinGLContext(mode, (WinWindowInfo)window, shareContext, major, minor, flags);
         }
 
-        public virtual IGraphicsContext CreateGLContext(ContextHandle handle, IWindowInfo window, IGraphicsContext shareContext, bool directRendering, int major, int minor, GraphicsContextFlags flags)
+        public override IGraphicsContext CreateGLContext(ContextHandle handle, IWindowInfo window, IGraphicsContext shareContext, bool directRendering, int major, int minor, GraphicsContextFlags flags)
         {
             return new WinGLContext(handle, (WinWindowInfo)window, shareContext, major, minor, flags);
         }
 
-        public virtual GraphicsContext.GetCurrentContextDelegate CreateGetCurrentGraphicsContext()
+        public override GraphicsContext.GetCurrentContextDelegate CreateGetCurrentGraphicsContext()
         {
             return (GraphicsContext.GetCurrentContextDelegate)delegate
             {
@@ -87,26 +110,26 @@ namespace OpenTK.Platform.Windows
             };
         }
 
-        public virtual IGraphicsMode CreateGraphicsMode()
-        {
-            return new WinGraphicsMode();
-        }
-
-        public virtual OpenTK.Input.IKeyboardDriver2 CreateKeyboardDriver()
+        public override OpenTK.Input.IKeyboardDriver2 CreateKeyboardDriver()
         {
             return InputDriver.KeyboardDriver;
         }
 
-        public virtual OpenTK.Input.IMouseDriver2 CreateMouseDriver()
+        public override OpenTK.Input.IMouseDriver2 CreateMouseDriver()
         {
             return InputDriver.MouseDriver;
         }
 
-        public virtual OpenTK.Input.IGamePadDriver CreateGamePadDriver()
+        public override OpenTK.Input.IGamePadDriver CreateGamePadDriver()
         {
             return InputDriver.GamePadDriver;
         }
-        
+
+        public override IJoystickDriver2 CreateJoystickDriver()
+        {
+            return InputDriver.JoystickDriver;
+        }
+
         #endregion
 
         IInputDriver2 InputDriver
@@ -126,31 +149,17 @@ namespace OpenTK.Platform.Windows
 
         #region IDisposable Members
 
-        void Dispose(bool manual)
+        protected override void Dispose(bool manual)
         {
-            if (!disposed)
+            if (!IsDisposed)
             {
                 if (manual)
                 {
                     InputDriver.Dispose();
                 }
-                else
-                {
-                    Debug.Print("{0} leaked, did you forget to call Dispose()?", GetType());
-                }
-                disposed = true;
+
+                base.Dispose(manual);
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~WinFactory()
-        {
-            Dispose(false);
         }
 
         #endregion
