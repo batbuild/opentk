@@ -608,9 +608,6 @@
     <Compile Include="Audio\OpenAL\AL\ALEnums.cs">
       <SubType>Code</SubType>
     </Compile>
-    <None Include="..\..\OpenTK.snk">
-      <Link>OpenTK.snk</Link>
-    </None>
     <Compile Include="Platform\X11\X11Keyboard.cs" />
     <Compile Include="Platform\X11\X11Mouse.cs" />
     <Compile Include="Input\ButtonState.cs" />
@@ -680,12 +677,6 @@
     </PostBuildEvent>
   </PropertyGroup>
   <ItemGroup />
-  <Target Name="AfterBuild">
-    <Exec Command="$(OutputPath)..\..\Tools\Debug\Rewrite.exe $(OutputPath)OpenTK.dll ..\..\OpenTK.snk" Condition="$(OS) == 'Windows_NT' and $(Configuration) == 'Debug'" />
-    <Exec Command="$(OutputPath)..\..\Tools\Release\Rewrite.exe $(OutputPath)OpenTK.dll ..\..\OpenTK.snk" Condition="$(OS) == 'Windows_NT' and $(Configuration) != 'Debug'" />
-    <Exec Command="mono $(OutputPath)..\..\Tools\Debug\Rewrite.exe $(OutputPath)OpenTK.dll ..\..\OpenTK.snk" Condition="$(OS) != 'Windows_NT' and $(Configuration) == 'Debug'" />
-    <Exec Command="mono $(OutputPath)..\..\Tools\Release\Rewrite.exe $(OutputPath)OpenTK.dll ..\..\OpenTK.snk" Condition="$(OS) != 'Windows_NT' and $(Configuration) != 'Debug'" />
-  </Target>
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>

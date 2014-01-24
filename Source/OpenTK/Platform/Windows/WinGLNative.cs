@@ -263,9 +263,6 @@ namespace OpenTK.Platform.Windows
             // processing from time to time.
             is_in_modal_loop = true;
             StartTimer(handle);
-
-            if (!CursorVisible)
-                UngrabCursor();
         }
 
         void HandleExitModalLoop(IntPtr handle, WindowMessage message, IntPtr wParam, IntPtr lParam)
@@ -274,10 +271,6 @@ namespace OpenTK.Platform.Windows
             // necessary.
             is_in_modal_loop = false;
             StopTimer(handle);
-
-            // Ensure cursor remains grabbed
-            if (!CursorVisible)
-                GrabCursor();
         }
 
         void HandleWindowPositionChanged(IntPtr handle, WindowMessage message, IntPtr wParam, IntPtr lParam)
@@ -311,15 +304,6 @@ namespace OpenTK.Platform.Windows
                         if (suppress_resize <= 0)
                             Resize(this, EventArgs.Empty);
                     }
-
-                    if (!is_in_modal_loop)
-                    {
-                        // If we are in a modal resize/move loop, cursor grabbing is
-                        // handled inside [ENTER|EXIT]SIZEMOVE case above.
-                        // If not, then we have to handle cursor grabbing here.
-                        if (!CursorVisible)
-                            GrabCursor();
-                    }
                 }
             }
         }
@@ -346,10 +330,6 @@ namespace OpenTK.Platform.Windows
 
             if (new_border != windowBorder)
             {
-                // Ensure cursor remains grabbed
-                if (!CursorVisible)
-                    GrabCursor();
-
                 windowBorder = new_border;
                 WindowBorderChanged(this, EventArgs.Empty);
             }
@@ -380,10 +360,6 @@ namespace OpenTK.Platform.Windows
             {
                 windowState = new_state;
                 WindowStateChanged(this, EventArgs.Empty);
-
-                // Ensure cursor remains grabbed
-                if (!CursorVisible)
-                    GrabCursor();
             }
         }
 
@@ -404,23 +380,50 @@ namespace OpenTK.Platform.Windows
                 (short)(((uint)lParam.ToInt32() & 0xFFFF0000) >> 16));
             mouse.Position = point;
 
-            if (mouse_outside_window)
-            {
-                // Once we receive a mouse move event, it means that the mouse has
-                // re-entered the window.
-                mouse_outside_window = false;
-                EnableMouseTracking();
+			if (mouse_outside_window)
+			{
+				// Once we receive a mouse move event, it means that the mouse has
+				// re-entered the window.
+				mouse_outside_window = false;
+				EnableMouseTracking();
+			}
+					
+			if (this.client_rectangle.Contains(lastCursorPos) && !this.client_rectangle.Contains(point))
+			{
+				if (!CursorVisible)
+					ShowCursor();
+				mouse.NotifyLeave();
+				MouseLeave(this, EventArgs.Empty);
+			}
+			if (!this.client_rectangle.Contains(lastCursorPos) && this.client_rectangle.Contains(point))
+			{
+				if (!CursorVisible)
+					HideCursor();
+				mouse.NotifyEnter();
+				MouseEnter(this, EventArgs.Empty);
+			}
 
-                MouseEnter(this, EventArgs.Empty);
-            }
+			lastCursorPos = point;
         }
 
         void HandleMouseLeave(IntPtr handle, WindowMessage message, IntPtr wParam, IntPtr lParam)
         {
-            mouse_outside_window = true;
-            // Mouse tracking is disabled automatically by the OS
+			mouse_outside_window = true;
+			// Mouse tracking is disabled automatically by the OS
 
-            MouseLeave(this, EventArgs.Empty);
+            Point point;
+			Functions.GetCursorPos(out point);
+			point = this.PointToClient(point);
+
+			if (this.client_rectangle.Contains(lastCursorPos) && !this.client_rectangle.Contains(point))
+			{
+				if (!CursorVisible)
+					ShowCursor();
+				mouse.NotifyLeave();
+				MouseLeave(this, EventArgs.Empty);
+			}
+
+			lastCursorPos = point;
         }
 
         void HandleMouseWheel(IntPtr handle, WindowMessage message, IntPtr wParam, IntPtr lParam)
