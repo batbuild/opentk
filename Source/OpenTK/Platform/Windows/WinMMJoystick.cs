@@ -268,8 +268,11 @@ namespace OpenTK.Platform.Windows
                 JoystickError result = UnsafeNativeMethods.joyGetDevCaps(index, out mmcaps, JoyCaps.SizeInBytes);
                 if (result == JoystickError.NoError)
                 {
+					int num_axes = mmcaps.NumAxes;
+					if ((mmcaps.Capabilities & JoystCapsFlags.HasPov) != 0)
+						num_axes += 2;
                     JoystickCapabilities caps = new JoystickCapabilities(
-                        mmcaps.NumAxes, mmcaps.NumButtons, true);
+                        num_axes, mmcaps.NumButtons, true);
                     //if ((caps.Capabilities & JoystCapsFlags.HasPov) != 0)
                     //    gpcaps.DPadCount++;
                     return caps;
@@ -310,6 +313,58 @@ namespace OpenTK.Platform.Windows
                         state.SetAxis(JoystickAxis.Axis3, CalculateOffset(info.RPos, caps.RMin, caps.RMax));
                         state.SetAxis(JoystickAxis.Axis4, CalculateOffset(info.UPos, caps.UMin, caps.UMax));
                         state.SetAxis(JoystickAxis.Axis5, CalculateOffset(info.VPos, caps.VMin, caps.VMax));
+
+						if ((caps.Capabilities & JoystCapsFlags.HasPov) != 0)
+						{
+							float x = 0, y = 0;
+
+							// A discrete POV returns specific values for left, right, etc.
+							// A continuous POV returns an integer indicating an angle in degrees * 100, e.g. 18000 == 180.00 degrees.
+							// The vast majority of joysticks have discrete POVs, so we'll treat all of them as discrete for simplicity.
+							if ((JoystickPovPosition)info.Pov != JoystickPovPosition.Centered)
+							{
+								if (info.Pov > (int)JoystickPovPosition.Left || info.Pov < (int)JoystickPovPosition.Right)
+								{ y = 1; }
+								if ((info.Pov > (int)JoystickPovPosition.Forward) && (info.Pov < (int)JoystickPovPosition.Backward))
+								{ x = 1; }
+								if ((info.Pov > (int)JoystickPovPosition.Right) && (info.Pov < (int)JoystickPovPosition.Left))
+								{ y = -1; }
+								if (info.Pov > (int)JoystickPovPosition.Backward)
+								{ x = -1; }
+							}  
+							//if ((js.Details.PovType & PovType.Discrete) != 0)
+							//{
+							//    if ((JoystickPovPosition)info.Pov == JoystickPovPosition.Centered)
+							//    { x = 0; y = 0; }
+							//    else if ((JoystickPovPosition)info.Pov == JoystickPovPosition.Forward)
+							//    { x = 0; y = -1; }
+							//    else if ((JoystickPovPosition)info.Pov == JoystickPovPosition.Left)
+							//    { x = -1; y = 0; }
+							//    else if ((JoystickPovPosition)info.Pov == JoystickPovPosition.Backward)
+							//    { x = 0; y = 1; }
+							//    else if ((JoystickPovPosition)info.Pov == JoystickPovPosition.Right)
+							//    { x = 1; y = 0; }
+							//}
+							//else if ((js.Details.PovType & PovType.Continuous) != 0)
+							//{
+							//    if ((JoystickPovPosition)info.Pov == JoystickPovPosition.Centered)
+							//    {
+							//        // This approach moves the hat on a circle, not a square as it should.
+							//        float angle = (float)(System.Math.PI * info.Pov / 18000.0 + System.Math.PI / 2);
+							//        x = (float)System.Math.Cos(angle);
+							//        y = (float)System.Math.Sin(angle);
+							//        if (x < 0.001)
+							//            x = 0;
+							//        if (y < 0.001)
+							//            y = 0;
+							//    }
+							//}
+							//else
+							//    throw new NotImplementedException("Please post an issue report at http://www.opentk.com/issues");
+
+							state.SetAxis((JoystickAxis)(caps.NumAxes + 0), (x > 0 ? short.MaxValue : (x < 0 ? (short)-short.MaxValue : (short)0)));
+							state.SetAxis((JoystickAxis)(caps.NumAxes + 1), (y > 0 ? short.MaxValue : (y < 0 ? (short)-short.MaxValue : (short)0)));
+						}
 
                         for (int i = 0; i < 16; i++)
                         {

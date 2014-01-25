@@ -43,7 +43,7 @@ namespace OpenTK.Input
         internal const int MaxAxes = (int)JoystickAxis.Last;
         internal const int MaxButtons = (int)JoystickButton.Last;
 
-        const float ConversionFactor = 1.0f / (short.MaxValue + 0.5f);
+        const float ConversionFactor = 1.0f / short.MaxValue;
 
         unsafe fixed short axes[MaxAxes];
         int buttons;
