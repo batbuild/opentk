@@ -155,6 +155,7 @@ namespace OpenTK.Graphics.OpenGL4
         Sampler2DRectShadow = ((int)0x8B64)        ,
         FloatMat2x3 = ((int)0x8B65)        ,
         FloatMat2x4 = ((int)0x8B66)        ,
+        FloatMat3x2 = ((int)0x8B67)        ,
         FloatMat3x4 = ((int)0x8B68)        ,
         FloatMat4x2 = ((int)0x8B69)        ,
         FloatMat4x3 = ((int)0x8B6A)        ,
