@@ -29,6 +29,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
 using OpenTK.Graphics;
 
 namespace OpenTK.Platform.Egl
@@ -312,6 +313,7 @@ namespace OpenTK.Platform.Egl
         public static extern IntPtr GetProcAddress(IntPtr funcname);
 
         // Returns true if Egl drivers exist on the system.
+		[DebuggerNonUserCode]
         public static bool IsSupported
         {
             get
