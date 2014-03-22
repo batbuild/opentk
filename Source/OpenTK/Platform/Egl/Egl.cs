@@ -313,9 +313,9 @@ namespace OpenTK.Platform.Egl
         public static extern IntPtr GetProcAddress(IntPtr funcname);
 
         // Returns true if Egl drivers exist on the system.
-		[DebuggerStepThrough]
         public static bool IsSupported
         {
+			[DebuggerNonUserCode]
             get
             {
                 try { GetCurrentContext(); }
