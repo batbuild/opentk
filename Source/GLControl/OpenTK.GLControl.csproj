@@ -99,7 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OpenTK\OpenTK.csproj">
-      <Name>OpenTK %28OpenTK\OpenTK%29</Name>
+      <Name>OpenTK</Name>
       <Project>{A37A7E14-0000-0000-0000-000000000000}</Project>
       <Private>False</Private>
     </ProjectReference>
