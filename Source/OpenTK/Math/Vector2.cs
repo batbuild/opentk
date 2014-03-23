@@ -107,22 +107,6 @@ namespace OpenTK
             }
         }
         /// <summary>
-        /// Gets an approximation of the vector length (magnitude).
-        /// </summary>
-        /// <remarks>
-        /// This property uses an approximation of the square root function to calculate vector magnitude, with
-        /// an upper error bound of 0.001.
-        /// </remarks>
-        /// <see cref="Length"/>
-        /// <seealso cref="LengthSquared"/>
-        public float LengthFast
-        {
-            get
-            {
-                return 1.0f / MathHelper.InverseSqrtFast(X * X + Y * Y);
-            }
-        }
-        /// <summary>
         /// Gets the square of the vector length (magnitude).
         /// </summary>
         /// <remarks>
@@ -275,7 +259,7 @@ namespace OpenTK
         /// <param name="a">First operand</param>
         /// <param name="b">Second operand</param>
         /// <returns>The component-wise minimum</returns>
-        public static Vector2 ComponentMin(Vector2 a, Vector2 b)
+        public static Vector2 Min(Vector2 a, Vector2 b)
         {
             a.X = a.X < b.X ? a.X : b.X;
             a.Y = a.Y < b.Y ? a.Y : b.Y;
@@ -287,7 +271,7 @@ namespace OpenTK
         /// <param name="a">First operand</param>
         /// <param name="b">Second operand</param>
         /// <param name="result">The component-wise minimum</param>
-        public static void ComponentMin(ref Vector2 a, ref Vector2 b, out Vector2 result)
+        public static void Min(ref Vector2 a, ref Vector2 b, out Vector2 result)
         {
             result.X = a.X < b.X ? a.X : b.X;
             result.Y = a.Y < b.Y ? a.Y : b.Y;
@@ -299,7 +283,7 @@ namespace OpenTK
         /// <param name="a">First operand</param>
         /// <param name="b">Second operand</param>
         /// <returns>The component-wise maximum</returns>
-        public static Vector2 ComponentMax(Vector2 a, Vector2 b)
+        public static Vector2 Max(Vector2 a, Vector2 b)
         {
             a.X = a.X > b.X ? a.X : b.X;
             a.Y = a.Y > b.Y ? a.Y : b.Y;
@@ -311,7 +295,7 @@ namespace OpenTK
         /// <param name="a">First operand</param>
         /// <param name="b">Second operand</param>
         /// <param name="result">The component-wise maximum</param>
-        public static void ComponentMax(ref Vector2 a, ref Vector2 b, out Vector2 result)
+        public static void Max(ref Vector2 a, ref Vector2 b, out Vector2 result)
         {
             result.X = a.X > b.X ? a.X : b.X;
             result.Y = a.Y > b.Y ? a.Y : b.Y;
@@ -337,6 +321,20 @@ namespace OpenTK
         {
             result = left.X * right.X + left.Y * right.Y;
         }
+
+		/// <summary>
+		/// Calculates the distance between two points described by two vectors. 
+		/// </summary>
+		/// <param name="left"></param>
+		/// <param name="right"></param>
+		/// <returns></returns>
+		public static float Distance(ref Vector2 left, ref Vector2 right)
+		{
+			Vector2 diff;
+			diff.X = left.X - right.X;
+			diff.Y = left.Y - right.Y;
+			return (float)Math.Sqrt(diff.X * diff.X + diff.Y * diff.Y);
+		}
 
         /// <summary>
         /// Returns a new Vector that is the linear blend of the 2 given Vectors
