@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>OpenTK.GLControl</id>
+        <version>1.1.1550.5715</version>
+        <title>OpenTK.GLControl</title>
+        <authors>@BatCatGames</authors>
+        <projectUrl>https://github.com/BraveSirAndrew/opentk.git</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A minimal fork of OpenTK for personal projects.</description>
+        <language>en-IE</language>
+    </metadata>
+    <files>
+        <file src="Binaries\OpenTK\Release\OpenTK.GLControl.dll" target="lib\net40\OpenTK.GLControl.dll" />
+    </files>
+</package>
