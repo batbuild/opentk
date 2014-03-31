@@ -12,5 +12,6 @@
     </metadata>
     <files>
         <file src="Binaries\OpenTK\Release\OpenTK.dll" target="lib\net40\OpenTK.dll" />
+        <file src="Binaries\OpenTK\Release\OpenTK.xml" target="lib\net40\OpenTK.xml" />
     </files>
 </package>
