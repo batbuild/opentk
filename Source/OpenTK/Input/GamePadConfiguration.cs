@@ -175,15 +175,25 @@ namespace OpenTK.Input
                     return new GamePadConfigurationSource(ParseButton(item));
 
                 case 'h':
-                    throw new NotImplementedException();
-                    //return new MapItem(ParseHat(item));
+                    return new GamePadConfigurationSource(ParseHat(item));
 
                 default:
                     throw new InvalidOperationException("[Input] Invalid GamePad configuration value");
             }
         }
 
-        static JoystickAxis ParseAxis(string item)
+	    private static JoystickButton ParseHat(string item)
+	    {
+			JoystickButton button = JoystickButton.Button0;
+
+			if(item.IndexOf('.') == -1)
+				throw new InvalidOperationException(string.Format("[Input] Invalid Gamepad mapping configuration value: {0}", item));
+
+			int id = Int32.Parse(item.Substring(item.IndexOf('.') + 1));
+			return button + id;
+	    }
+
+	    static JoystickAxis ParseAxis(string item)
         {
             // item is in the format "a#" where # a zero-based integer number
             JoystickAxis axis = JoystickAxis.Axis0;
