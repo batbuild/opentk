@@ -499,7 +499,7 @@ namespace OpenTK.Platform.MacOS
                 joy.Name = name;
                 joy.Guid = guid;
                 joy.State.SetIsConnected(true);
-                joy.Capabilities = new JoystickCapabilities(axes, buttons, true);
+                joy.Capabilities = new JoystickCapabilities(axes, buttons, true, false);
 
                 // Map button elements to JoystickButtons
                 for (int button = 0; button < button_elements.Count; button++)

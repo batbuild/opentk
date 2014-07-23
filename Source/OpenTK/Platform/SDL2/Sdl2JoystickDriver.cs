@@ -34,6 +34,26 @@ namespace OpenTK.Platform.SDL2
 {
     class Sdl2JoystickDriver : IJoystickDriver, IJoystickDriver2, IGamePadDriver, IDisposable
     {
+		private enum HapticEffectType
+		{
+			Simple,
+			LeftAndRightMotor
+		}
+
+		private SDL_HapticEffect leftRightHapticEffect = new SDL_HapticEffect
+		{
+			type = SDL.SDL_HAPTIC_LEFTRIGHT,
+			leftright = new SDL_HapticLeftRight
+			{
+				type = SDL.SDL_HAPTIC_LEFTRIGHT,
+				length = SDL.SDL_HAPTIC_INFINITY,
+				large_magnitude = ushort.MaxValue,
+				small_magnitude = ushort.MaxValue
+			}
+		};
+
+		private HapticEffectType supportedHapticEffect;
+
         const float RangeMultiplier =  1.0f / 32768.0f;
         readonly MappedGamePadDriver gamepad_driver = new MappedGamePadDriver();
         bool disposed;
@@ -46,6 +66,8 @@ namespace OpenTK.Platform.SDL2
             public int HatCount { get; set; }
             public int BallCount { get; set; }
             public bool IsConnected { get; set; }
+	        public bool IsHaptic { get; set; }
+			public IntPtr Haptic { get; set; }
         }
 
         // For IJoystickDriver2 implementation
@@ -88,6 +110,7 @@ namespace OpenTK.Platform.SDL2
             int num_buttons = 0;
             int num_hats = 0;
             int num_balls = 0;
+	        int is_haptic = 0;
 
             IntPtr handle = SDL.JoystickOpen(id);
             if (handle != IntPtr.Zero)
@@ -96,13 +119,46 @@ namespace OpenTK.Platform.SDL2
                 num_buttons = SDL.JoystickNumButtons(handle);
                 num_hats = SDL.JoystickNumHats(handle);
                 num_balls = SDL.JoystickNumBalls(handle);
+	            is_haptic = SDL.JoystickIsHaptic(handle);
 
+	            			
                 joystick = new JoystickDevice<Sdl2JoystickDetails>(id, num_axes, num_buttons);
                 joystick.Description = SDL.JoystickName(handle);
                 joystick.Details.Handle = handle;
                 joystick.Details.Guid = SDL.JoystickGetGUID(handle).ToGuid();
                 joystick.Details.HatCount = num_hats;
                 joystick.Details.BallCount = num_balls;
+	            joystick.Details.IsHaptic = is_haptic > 0;
+
+				if (is_haptic > 0)
+				{
+					Debug.Print("[SDL2] Joystick device {0} supports haptics", id);
+
+					IntPtr haptic = SDL.HapticOpenFromJoystick(handle);
+					if (haptic != IntPtr.Zero)
+					{
+						joystick.Details.Haptic = haptic;
+
+						if (SDL.HapticEffectSupported(haptic, ref leftRightHapticEffect) == 1)
+						{
+							supportedHapticEffect = HapticEffectType.LeftAndRightMotor;
+							SDL.HapticNewEffect(haptic, ref leftRightHapticEffect);
+						}
+						else if (SDL.HapticRumbleSupported(haptic) == 1)
+						{
+							supportedHapticEffect = HapticEffectType.Simple;
+							if (SDL.HapticRumbleInit(haptic) < 0)
+							{
+								Debug.Print("[SDL2] Couldn't initialize rumble for joystick device {0}", id);
+							}
+						}
+						else
+						{
+							SDL.HapticClose(haptic);
+							joystick.Details.IsHaptic = false;
+						}
+					}
+				}
 
                 Debug.Print("[SDL2] Joystick device {0} opened successfully. ", id);
                 Debug.Print("\t\t'{0}' has {1} axes, {2} buttons, {3} hats, {4} balls",
@@ -570,7 +626,34 @@ namespace OpenTK.Platform.SDL2
 
         public bool SetVibration(int index, float left, float right)
         {
-            return false;
+			JoystickDevice<Sdl2JoystickDetails> joystick = (JoystickDevice<Sdl2JoystickDetails>)joysticks[index];
+
+	        if (joystick.Details.IsHaptic == false)
+		        return false;
+
+	        IntPtr haptic = joystick.Details.Haptic;
+			if (haptic == IntPtr.Zero)
+			{
+				return false;
+			}
+
+	        if (left <= 0f && right <= 0f)
+	        {
+		        SDL.HapticStopAll(haptic);
+	        }
+			else if (supportedHapticEffect == HapticEffectType.LeftAndRightMotor)
+			{
+				leftRightHapticEffect.leftright.large_magnitude = (ushort)(65535.0f * left);
+				leftRightHapticEffect.leftright.small_magnitude = (ushort)(65535.0f * right);
+				SDL.HapticUpdateEffect(haptic, 0, ref leftRightHapticEffect);
+				SDL.HapticRunEffect(haptic, 0, 1);
+			}
+			else
+			{
+				SDL.HapticRumblePlay(haptic, Math.Max(left, right), SDL.SDL_HAPTIC_INFINITY);
+			}
+
+	        return true;
         }
 #endif
 
@@ -613,7 +696,8 @@ namespace OpenTK.Platform.SDL2
                 return new JoystickCapabilities(
                     joystick.Axis.Count,
                     joystick.Button.Count,
-                    joystick.Details.IsConnected);
+                    joystick.Details.IsConnected,
+					joystick.Details.IsHaptic);
             }
             return new JoystickCapabilities();
         }
@@ -646,6 +730,12 @@ namespace OpenTK.Platform.SDL2
                     foreach (var j in joysticks)
                     {
                         var joystick = (JoystickDevice<Sdl2JoystickDetails>)j;
+
+	                    if (joystick.Details.IsHaptic && joystick.Details.Haptic != IntPtr.Zero)
+	                    {
+		                    SDL.HapticClose(joystick.Details.Haptic);
+	                    }
+
                         IntPtr handle = joystick.Details.Handle;
                         SDL.JoystickClose(handle);
                     }
