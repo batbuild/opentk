@@ -28,6 +28,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.Remoting.Messaging;
 using System.Security;
 using System.Runtime.InteropServices;
 
@@ -35,13 +36,42 @@ namespace OpenTK.Platform.SDL2
 {
 
     partial class SDL
-    {
-        #if ANDROID
+	{
+		#region Haptics
+		
+		/* SDL_HapticEffect type */
+		public const ushort SDL_HAPTIC_CONSTANT = (1 << 0);
+		public const ushort SDL_HAPTIC_SINE = (1 << 1);
+		public const ushort SDL_HAPTIC_LEFTRIGHT = (1 << 2);
+		public const ushort SDL_HAPTIC_TRIANGLE = (1 << 3);
+		public const ushort SDL_HAPTIC_SAWTOOTHUP = (1 << 4);
+		public const ushort SDL_HAPTIC_SAWTOOTHDOWN = (1 << 5);
+		public const ushort SDL_HAPTIC_SPRING = (1 << 7);
+		public const ushort SDL_HAPTIC_DAMPER = (1 << 8);
+		public const ushort SDL_HAPTIC_INERTIA = (1 << 9);
+		public const ushort SDL_HAPTIC_FRICTION = (1 << 10);
+		public const ushort SDL_HAPTIC_CUSTOM = (1 << 11);
+		public const ushort SDL_HAPTIC_GAIN = (1 << 12);
+		public const ushort SDL_HAPTIC_AUTOCENTER = (1 << 13);
+		public const ushort SDL_HAPTIC_STATUS = (1 << 14);
+		public const ushort SDL_HAPTIC_PAUSE = (1 << 15);
+
+		/* SDL_HapticDirection type */
+		public const byte SDL_HAPTIC_POLAR = 0;
+		public const byte SDL_HAPTIC_CARTESIAN = 1;
+		public const byte SDL_HAPTIC_SPHERICAL = 2;
+
+		/* SDL_HapticRunEffect */
+		public const uint SDL_HAPTIC_INFINITY = 4292967295U;
+		
+		#endregion
+
+#if ANDROID
         const string lib = "libSDL2.so";
-        #elif IPHONE
+#elif IPHONE
         const string lib = "__Internal";
-        #else
-        const string lib = "SDL2.dll";
+#else
+		const string lib = "SDL2.dll";
         #endif
 
         public readonly static object Sync = new object();
@@ -334,6 +364,14 @@ namespace OpenTK.Platform.SDL2
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_JoystickOpen", ExactSpelling = true)]
         public static extern IntPtr JoystickOpen(int device_index);
 
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_JoystickIsHaptic", ExactSpelling = true)]
+		public static extern int JoystickIsHaptic(IntPtr joystick);
+		
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_HapticOpenFromJoystick", ExactSpelling = true)]
+		public static extern IntPtr HapticOpenFromJoystick(IntPtr joystick);
+
         [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_JoystickUpdate", ExactSpelling = true)]
         public static extern void JoystickUpdate();
@@ -349,6 +387,45 @@ namespace OpenTK.Platform.SDL2
         [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_NumJoysticks", ExactSpelling = true)]
         public static extern int NumJoysticks();
+
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_NumHaptics", ExactSpelling = true)]
+		public static extern int NumHaptics();
+
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_HapticOpen", ExactSpelling = true)]
+		public static extern IntPtr HapticOpen(int deviceIndex);
+
+		[DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_HapticEffectSupported", ExactSpelling = true)]
+		public static extern int HapticEffectSupported(IntPtr haptic, ref SDL_HapticEffect effect);
+
+		[DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_HapticNewEffect", ExactSpelling = true)]
+		public static extern int HapticNewEffect(IntPtr haptic, ref SDL_HapticEffect effect);
+
+		[DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_HapticStopAll", ExactSpelling = true)]
+		public static extern int HapticStopAll(IntPtr haptic);
+
+		[DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_HapticUpdateEffect", ExactSpelling = true)]
+		public static extern int HapticUpdateEffect(IntPtr haptic, int effect, ref SDL_HapticEffect data);
+
+		[DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_HapticRunEffect", ExactSpelling = true)]
+		public static extern int HapticRunEffect(IntPtr haptic, int effect, uint iterations);
+
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_HapticRumbleSupported", ExactSpelling = true)]
+		public static extern int HapticRumbleSupported(IntPtr haptic);
+
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_HapticRumbleInit", ExactSpelling = true)]
+		public static extern int HapticRumbleInit(IntPtr haptic);
+
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_HapticRumblePlay", ExactSpelling = true)]
+		public static extern int HapticRumblePlay(IntPtr haptic, float strength, uint length);
+
+		[SuppressUnmanagedCodeSecurity]
+		[DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_HapticClose", ExactSpelling = true)]
+		public static extern void HapticClose(IntPtr haptic);
 
         [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_PixelFormatEnumToMasks", ExactSpelling = true)]
@@ -1555,7 +1632,160 @@ namespace OpenTK.Platform.SDL2
         public int Height;
     }
 
-    struct SysWMInfo
+	#region Haptics
+
+	[StructLayout(LayoutKind.Sequential)]
+	public unsafe struct SDL_HapticDirection
+	{
+		public byte type;
+		public fixed int dir[3];
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct SDL_HapticConstant
+	{
+		// Header
+		public ushort type;
+		public SDL_HapticDirection direction;
+		// Replay
+		public uint length;
+		public ushort delay;
+		// Trigger
+		public ushort button;
+		public ushort interval;
+		// Constant
+		public short level;
+		// Envelope
+		public ushort attack_length;
+		public ushort attack_level;
+		public ushort fade_length;
+		public ushort fade_level;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct SDL_HapticPeriodic
+	{
+		// Header
+		public ushort type;
+		public SDL_HapticDirection direction;
+		// Replay
+		public uint length;
+		public ushort delay;
+		// Trigger
+		public ushort button;
+		public ushort interval;
+		// Periodic
+		public ushort period;
+		public short magnitude;
+		public short offset;
+		public ushort phase;
+		// Envelope
+		public ushort attack_length;
+		public ushort attack_level;
+		public ushort fade_length;
+		public ushort fade_level;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public unsafe struct SDL_HapticCondition
+	{
+		// Header
+		public ushort type;
+		public SDL_HapticDirection direction;
+		// Replay
+		public uint length;
+		public ushort delay;
+		// Trigger
+		public ushort button;
+		public ushort interval;
+		// Condition
+		public fixed ushort right_sat[3];
+		public fixed ushort left_sat[3];
+		public fixed short right_coeff[3];
+		public fixed short left_coeff[3];
+		public fixed ushort deadband[3];
+		public fixed short center[3];
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct SDL_HapticRamp
+	{
+		// Header
+		public ushort type;
+		public SDL_HapticDirection direction;
+		// Replay
+		public uint length;
+		public ushort delay;
+		// Trigger
+		public ushort button;
+		public ushort interval;
+		// Ramp
+		public short start;
+		public short end;
+		// Envelope
+		public ushort attack_length;
+		public ushort attack_level;
+		public ushort fade_length;
+		public ushort fade_level;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct SDL_HapticLeftRight
+	{
+		// Header
+		public ushort type;
+		// Replay
+		public uint length;
+		// Rumble
+		public ushort large_magnitude;
+		public ushort small_magnitude;
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct SDL_HapticCustom
+	{
+		// Header
+		public ushort type;
+		public SDL_HapticDirection direction;
+		// Replay
+		public uint length;
+		public ushort delay;
+		// Trigger
+		public ushort button;
+		public ushort interval;
+		// Custom
+		public byte channels;
+		public ushort period;
+		public ushort samples;
+		public IntPtr data; // Uint16*
+		// Envelope
+		public ushort attack_length;
+		public ushort attack_level;
+		public ushort fade_length;
+		public ushort fade_level;
+	}
+
+	[StructLayout(LayoutKind.Explicit)]
+	public struct SDL_HapticEffect
+	{
+		[FieldOffset(0)]
+		public ushort type;
+		[FieldOffset(0)]
+		public SDL_HapticConstant constant;
+		[FieldOffset(0)]
+		public SDL_HapticPeriodic periodic;
+		[FieldOffset(0)]
+		public SDL_HapticCondition condition;
+		[FieldOffset(0)]
+		public SDL_HapticRamp ramp;
+		[FieldOffset(0)]
+		public SDL_HapticLeftRight leftright;
+		[FieldOffset(0)]
+		public SDL_HapticCustom custom;
+	}
+#endregion
+	
+	struct SysWMInfo
     {
         public Version Version;
         public SysWMType Subsystem;

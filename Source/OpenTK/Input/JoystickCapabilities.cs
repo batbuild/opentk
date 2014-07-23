@@ -42,10 +42,11 @@ namespace OpenTK.Input
         byte button_count;
         byte dpad_count;
         bool is_connected;
+	    private bool supports_haptics;
 
-        #region Constructors
+	    #region Constructors
 
-        internal JoystickCapabilities(int axis_count, int button_count, bool is_connected)
+        internal JoystickCapabilities(int axis_count, int button_count, bool is_connected, bool supports_haptics)
         {
             if (axis_count < 0 || axis_count >= JoystickState.MaxAxes)
                 throw new ArgumentOutOfRangeException("axis_count");
@@ -56,6 +57,7 @@ namespace OpenTK.Input
             this.button_count = (byte)button_count;
             this.dpad_count = 0; // Todo: either remove dpad_count or add it as a parameter
             this.is_connected = is_connected;
+	        this.supports_haptics = supports_haptics;
         }
 
         #endregion
@@ -87,15 +89,24 @@ namespace OpenTK.Input
             get { return is_connected; }
         }
 
-        /// <summary>
-        /// Returns a <see cref="System.String"/> that represents the current <see cref="OpenTK.Input.JoystickCapabilities"/>.
-        /// </summary>
-        /// <returns>A <see cref="System.String"/> that represents the current <see cref="OpenTK.Input.JoystickCapabilities"/>.</returns>
-        public override string ToString()
+		/// <summary>
+		/// Get a value indicating whether this <see cref="JoystickDevice"/> supports rumble effects.
+		/// <value><c>true</c> if this instance supports haptics; otherwise, <c>false</c>.</value>
+		/// </summary>
+	    public bool SupportsHaptics
+	    {
+		    get { return supports_haptics; }
+	    }
+
+	    /// <summary>
+	    /// Returns a <see cref="System.String"/> that represents the current <see cref="OpenTK.Input.JoystickCapabilities"/>.
+	    /// </summary>
+	    /// <returns>A <see cref="System.String"/> that represents the current <see cref="OpenTK.Input.JoystickCapabilities"/>.</returns>
+	    public override string ToString()
         {
             return String.Format(
-                "{{Axes: {0}; Buttons: {1}; IsConnected: {2}}}",
-                AxisCount, ButtonCount, IsConnected);
+                "{{Axes: {0}; Buttons: {1}; IsConnected: {2}; SupportsHaptics: {3}}}",
+                AxisCount, ButtonCount, IsConnected, SupportsHaptics);
         }
 
         /// <summary>
@@ -108,7 +119,8 @@ namespace OpenTK.Input
             return
                 AxisCount.GetHashCode() ^
                 ButtonCount.GetHashCode() ^
-                IsConnected.GetHashCode();
+                IsConnected.GetHashCode() ^
+				SupportsHaptics.GetHashCode();
         }
 
         /// <summary>
@@ -148,7 +160,8 @@ namespace OpenTK.Input
             return
                 AxisCount == other.AxisCount &&
                 ButtonCount == other.ButtonCount &&
-                IsConnected == other.IsConnected;
+                IsConnected == other.IsConnected &&
+				SupportsHaptics == other.SupportsHaptics;
         }
 
         #endregion
