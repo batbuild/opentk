@@ -46,7 +46,7 @@ namespace OpenTK.Platform.SDL2
 			leftright = new SDL_HapticLeftRight
 			{
 				type = SDL.SDL_HAPTIC_LEFTRIGHT,
-				length = SDL.SDL_HAPTIC_INFINITY,
+				length = uint.MaxValue,
 				large_magnitude = ushort.MaxValue,
 				small_magnitude = ushort.MaxValue
 			}
