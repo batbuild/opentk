@@ -117,7 +117,8 @@ namespace OpenTK.Platform.Windows
                         caps.NumAxes,
                         caps.NumButtons,
                         (caps.Capabilities & JoystCapsFlags.HasPov) != 0 ? 1 : 0,
-                        true);
+                        true,
+						false);
 
                     int num_axes = caps.NumAxes;
                     if ((caps.Capabilities & JoystCapsFlags.HasPov) != 0)
