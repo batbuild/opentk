@@ -57,6 +57,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -74,35 +75,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DebugSymbols>True</DebugSymbols>
     <DebugType>pdbonly</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Documentation|AnyCPU'">
-    <OutputPath>..\..\Binaries\OpenTK\Release\</OutputPath>
-    <DebugSymbols>True</DebugSymbols>
-    <DebugType>pdbonly</DebugType>
-    <WarningLevel>4</WarningLevel>
-    <Optimize>True</Optimize>
-    <DefineConstants>TRACE;</DefineConstants>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <DebugType>pdbonly</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <DocumentationFile>..\..\Binaries\OpenTK\Release\OpenTK.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Nsis|AnyCPU'">
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <BaseAddress>285212672</BaseAddress>
-    <ConfigurationOverrideFile>
-    </ConfigurationOverrideFile>
-    <DefineConstants>TRACE;</DefineConstants>
-    <DocumentationFile>..\..\Binaries\OpenTK\Release\OpenTK.xml</DocumentationFile>
-    <FileAlignment>4096</FileAlignment>
-    <Optimize>True</Optimize>
-    <OutputPath>..\..\Binaries\OpenTK\Release\</OutputPath>
-    <RegisterForComInterop>False</RegisterForComInterop>
-    <RemoveIntegerChecks>False</RemoveIntegerChecks>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <DebugSymbols>True</DebugSymbols>
-    <DebugType>pdbonly</DebugType>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>True</SignAssembly>
@@ -148,20 +121,7 @@
     <Compile Include="Input\JoystickState.cs" />
     <Compile Include="InteropHelper.cs" />
     <Compile Include="Math\Matrix2.cs" />
-    <Compile Include="Math\Matrix2d.cs" />
-    <Compile Include="Math\Matrix2x3.cs" />
-    <Compile Include="Math\Matrix2x3d.cs" />
-    <Compile Include="Math\Matrix2x4.cs" />
-    <Compile Include="Math\Matrix2x4d.cs" />
     <Compile Include="Math\Matrix3.cs" />
-    <Compile Include="Math\Matrix3x2.cs" />
-    <Compile Include="Math\Matrix3x2d.cs" />
-    <Compile Include="Math\Matrix3x4.cs" />
-    <Compile Include="Math\Matrix3x4d.cs" />
-    <Compile Include="Math\Matrix4x2.cs" />
-    <Compile Include="Math\Matrix4x2d.cs" />
-    <Compile Include="Math\Matrix4x3.cs" />
-    <Compile Include="Math\Matrix4x3d.cs" />
     <Compile Include="Platform\DisplayDeviceBase.cs" />
     <Compile Include="Platform\Egl\EglUnixContext.cs" />
     <Compile Include="Platform\Egl\EglWinContext.cs" />
@@ -511,9 +471,6 @@
     <Compile Include="Math\Quaternion.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Math\Matrix3d.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Math\Vector4.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -524,18 +481,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Math\Functions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Math\Matrix4d.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Math\Vector2d.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Math\Vector2h.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Math\Vector3h.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Math\Point.cs">
@@ -550,9 +495,6 @@
     <Compile Include="Math\Half.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Math\Vector4d.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Math\Rectangle.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -565,82 +507,10 @@
     <Compile Include="Math\MathHelper.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Math\Quaterniond.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Math\Vector4h.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Math\Size.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Math\Vector3d.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Math\BezierCurveCubic.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\Memory.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\Device.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\Platform.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\Sampler.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\Kernel.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\Profiler.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\Program.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\Enums.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\CommandQueue.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\CLHelper.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\Event.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\Structs.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\Configuration.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\ComputeContext.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\CL10\Enums.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\CL10\ErrorHelper.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\CL10\Delegates.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\CL10\Core.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\CL10\CLHelper.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\CL10\CL.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compute\CL10\ImageFormat.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Audio\AudioDeviceException.cs">
@@ -691,9 +561,6 @@
     <Compile Include="Audio\OpenAL\AL\ALEnums.cs">
       <SubType>Code</SubType>
     </Compile>
-    <None Include="..\..\OpenTK.snk">
-      <Link>OpenTK.snk</Link>
-    </None>
     <Compile Include="Platform\X11\X11Keyboard.cs" />
     <Compile Include="Platform\X11\X11Mouse.cs" />
     <Compile Include="Input\ButtonState.cs" />

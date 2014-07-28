@@ -221,6 +221,24 @@ namespace OpenTK.Input
             WheelChanged(this, e);
         }
 
+        #region internal void NotifyEnter()
+
+        internal void NotifyEnter()
+        {
+			Enter(this, EventArgs.Empty);
+        }
+
+        #endregion
+
+        #region internal void NotifyLeave()
+
+        internal void NotifyLeave()
+        {
+			Leave(this, EventArgs.Empty);
+        }
+
+        #endregion
+
         #endregion
 
         #region --- Events ---
@@ -229,6 +247,16 @@ namespace OpenTK.Input
         /// Occurs when the mouse's position is moved.
         /// </summary>
         public event EventHandler<MouseMoveEventArgs> Move = delegate { };
+
+        /// <summary>
+        /// Occurs when the mouse leaves the observed area.
+        /// </summary>
+        public event EventHandler Leave = delegate { };
+
+        /// <summary>
+        /// Occurs when the mouse enters the observed area.
+        /// </summary>
+        public event EventHandler Enter = delegate { };
 
         /// <summary>
         /// Occurs when a button is pressed.

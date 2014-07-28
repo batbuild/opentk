@@ -29,6 +29,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
 using OpenTK.Graphics;
 
 namespace OpenTK.Platform.Egl
@@ -325,6 +326,7 @@ namespace OpenTK.Platform.Egl
         // Returns true if Egl drivers exist on the system.
         public static bool IsSupported
         {
+			[DebuggerNonUserCode]
             get
             {
                 try { GetCurrentContext(); }

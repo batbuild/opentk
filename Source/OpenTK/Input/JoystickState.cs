@@ -44,7 +44,7 @@ namespace OpenTK.Input
         internal const int MaxButtons = (int)JoystickButton.Last + 1;
         internal const int MaxHats = (int)JoystickHat.Last + 1;
 
-        const float ConversionFactor = 1.0f / (short.MaxValue + 0.5f);
+        const float ConversionFactor = 1.0f / short.MaxValue;
 
         int packet_number;
         int buttons;

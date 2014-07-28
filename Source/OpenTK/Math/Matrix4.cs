@@ -387,9 +387,9 @@ namespace OpenTK
         public Matrix4 ClearScale()
         {
             Matrix4 m = this;
-            m.Row0.Xyz = m.Row0.Xyz.Normalized();
-            m.Row1.Xyz = m.Row1.Xyz.Normalized();
-            m.Row2.Xyz = m.Row2.Xyz.Normalized();
+            m.Row0.Xyz = m.Row0.Xyz.Normalized;
+            m.Row1.Xyz = m.Row1.Xyz.Normalized;
+            m.Row2.Xyz = m.Row2.Xyz.Normalized;
             return m;
         }
         /// <summary>
@@ -435,9 +435,9 @@ namespace OpenTK
 
             if (row_normalise)
             {
-                row0 = row0.Normalized();
-                row1 = row1.Normalized();
-                row2 = row2.Normalized();
+                row0 = row0.Normalized;
+                row1 = row1.Normalized;
+                row2 = row2.Normalized;
             }
 
             // code below adapted from Blender
@@ -1243,9 +1243,9 @@ namespace OpenTK
         /// <returns>A Matrix4 that transforms world space to camera space</returns>
         public static Matrix4 LookAt(Vector3 eye, Vector3 target, Vector3 up)
         {
-            Vector3 z = Vector3.Normalize(eye - target);
-            Vector3 x = Vector3.Normalize(Vector3.Cross(up, z));
-            Vector3 y = Vector3.Normalize(Vector3.Cross(z, x));
+            Vector3 z = (eye - target).Normalized;
+            Vector3 x = (Vector3.Cross(up, z)).Normalized;
+            Vector3 y = (Vector3.Cross(z, x)).Normalized;
 
             Matrix4 result;
 

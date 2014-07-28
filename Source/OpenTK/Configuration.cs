@@ -196,6 +196,7 @@ namespace OpenTK
             return t != null;
         }
 
+		[DebuggerNonUserCode]
         static bool DetectSdl2()
         {
             bool supported = false;

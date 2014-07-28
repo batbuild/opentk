@@ -53,18 +53,16 @@ namespace OpenTK.Input
 
         #region Constructors
 
-        /// <summary>
-        /// Constructs a new KeyboardEventArgs instance.
-        /// </summary>
         public KeyboardKeyEventArgs() { }
-
-        /// <summary>
-        /// Constructs a new KeyboardEventArgs instance.
-        /// </summary>
-        /// <param name="args">An existing KeyboardEventArgs instance to clone.</param>
+        public KeyboardKeyEventArgs(Key key, uint scancode = 0)
+		{
+			Key = key;
+			ScanCode = scancode;
+		}
         public KeyboardKeyEventArgs(KeyboardKeyEventArgs args)
         {
             Key = args.Key;
+            ScanCode = args.ScanCode;
         }
 
         #endregion
