@@ -228,6 +228,7 @@ namespace OpenTK.Input
 				this.LostFocus(this, EventArgs.Empty);
 		}
 
+		#if false
         internal void SetKey(Key key, uint scancode, KeyModifiers mods, bool pressed)
         {
             if (state[key] != pressed || KeyRepeat)
@@ -256,7 +257,5 @@ namespace OpenTK.Input
             }
         }
         #endif
-
-        #endregion
     }
 }

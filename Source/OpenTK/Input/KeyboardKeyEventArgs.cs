@@ -54,16 +54,16 @@ namespace OpenTK.Input
         #region Constructors
 
         public KeyboardKeyEventArgs() { }
-        public KeyboardKeyEventArgs(Key key, uint scancode = 0)
-		{
-			Key = key;
-			ScanCode = scancode;
-		}
+       
         public KeyboardKeyEventArgs(KeyboardKeyEventArgs args)
         {
             Key = args.Key;
-            ScanCode = args.ScanCode;
         }
+
+	    public KeyboardKeyEventArgs(Key key)
+	    {
+		    this.key = key;
+	    }
 
         #endregion
 

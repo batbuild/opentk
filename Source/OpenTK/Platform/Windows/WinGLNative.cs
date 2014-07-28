@@ -97,8 +97,6 @@ namespace OpenTK.Platform.Windows
         KeyboardKeyEventArgs key_up = new KeyboardKeyEventArgs();
         KeyPressEventArgs key_press = new KeyPressEventArgs((char)0);
 
-        int cursor_visible_count = 0;
-
         MouseCursor cursor = MouseCursor.Default;
         IntPtr cursor_handle = Functions.LoadCursor(CursorName.Arrow);
         int cursor_visible_count = 0;
@@ -346,7 +344,7 @@ namespace OpenTK.Platform.Windows
             if (new_state != windowState)
             {
                 windowState = new_state;
-                OnWindowStateChanged(this, EventArgs.Empty);
+                OnWindowStateChanged(EventArgs.Empty);
             }
         }
 
@@ -388,8 +386,7 @@ namespace OpenTK.Platform.Windows
                 Point point = new Point(
                     (short)((uint)lParam.ToInt32() & 0x0000FFFF),
                     (short)(((uint)lParam.ToInt32() & 0xFFFF0000) >> 16));
-				 mouse.Position = point;
-
+				 
                 // GetMouseMovePointsEx works with screen coordinates
                 Point screenPoint = point;
                 Functions.ClientToScreen(handle, ref screenPoint);
@@ -406,15 +403,13 @@ namespace OpenTK.Platform.Windows
 			{
 				if (!CursorVisible)
 					ShowCursor();
-				mouse.NotifyLeave();
-				OnMouseLeave(this, EventArgs.Empty);
+				OnMouseLeave(EventArgs.Empty);
 			}
 			if (!this.client_rectangle.Contains(lastCursorPos) && this.client_rectangle.Contains(point))
 			{
 				if (!CursorVisible)
 					HideCursor();
-				mouse.NotifyEnter();
-				OnMouseEnter(this, EventArgs.Empty);
+				OnMouseEnter(EventArgs.Empty);
 			}
 
                 // & 0xFFFF to handle multiple monitors http://support.microsoft.com/kb/269743 
@@ -484,12 +479,10 @@ namespace OpenTK.Platform.Windows
                     }
                 }
                 mouse_last_timestamp = timestamp;
+				lastCursorPos = point;
             }
-
-
-                OnMouseEnter(EventArgs.Empty);
-            }
-			lastCursorPos = point;
+			
+            OnMouseEnter(EventArgs.Empty);
         }
 
         void HandleMouseLeave(IntPtr handle, WindowMessage message, IntPtr wParam, IntPtr lParam)
@@ -497,20 +490,7 @@ namespace OpenTK.Platform.Windows
 			mouse_outside_window = true;
 			// Mouse tracking is disabled automatically by the OS
 
-            Point point;
-			Functions.GetCursorPos(out point);
-			point = this.PointToClient(point);
-
-			if (this.client_rectangle.Contains(lastCursorPos) && !this.client_rectangle.Contains(point))
-			{
-				if (!CursorVisible)
-					ShowCursor();
-				mouse.NotifyLeave();
-				MouseLeave(this, EventArgs.Empty);
-			}
-
             OnMouseLeave(EventArgs.Empty);
-			lastCursorPos = point;
         }
 
         void HandleMouseWheel(IntPtr handle, WindowMessage message, IntPtr wParam, IntPtr lParam)
@@ -778,11 +758,11 @@ namespace OpenTK.Platform.Windows
 
                 case WindowMessage.KILLFOCUS:
                     HandleKillFocus(handle, message, wParam, lParam);
-					keyboard.NotifyLostFocus();
+//					keyboard.NotifyLostFocus();
                     break;
 
 				case WindowMessage.SETFOCUS:
-					keyboard.NotifyGotFocus();
+//					keyboard.NotifyGotFocus();
 					break;
 
                 #endregion
