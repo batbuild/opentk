@@ -594,6 +594,7 @@ namespace OpenTK
             vec.Z *= scale.Z;
             return vec;
         }
+		
         /// <summary>
         /// Divides an instance by a scalar.
         /// </summary>

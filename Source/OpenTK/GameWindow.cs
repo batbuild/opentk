@@ -78,8 +78,12 @@ namespace OpenTK
         const double MaxFrequency = 500.0; // Frequency cap for Update/RenderFrame events
 
         readonly Stopwatch watch = new Stopwatch();
+
+        #pragma warning disable 612,618
         readonly IJoystickDriver LegacyJoystick =
             Factory.Default.CreateLegacyJoystickDriver();
+        #pragma warning restore 612,618
+
 
         IGraphicsContext glContext;
 
@@ -97,8 +101,6 @@ namespace OpenTK
         double update_epsilon; // quantization error for UpdateFrame events
 
         bool is_running_slowly; // true, when UpdatePeriod cannot reach TargetUpdatePeriod
-
-        VSyncMode vsync;
 
         FrameEventArgs update_args = new FrameEventArgs();
         FrameEventArgs render_args = new FrameEventArgs();
@@ -400,8 +402,14 @@ namespace OpenTK
                     throw new ArgumentOutOfRangeException("frames_per_second", frames_per_second,
                                                           "Parameter should be inside the range [0.0, 200.0]");
 
-                TargetUpdateFrequency = updates_per_second;
-                TargetRenderFrequency = frames_per_second;
+                if (updates_per_second != 0)
+                {
+                    TargetUpdateFrequency = updates_per_second;
+                }
+                if (frames_per_second != 0)
+                {
+                    TargetRenderFrequency = frames_per_second;
+                }
 
                 Visible = true;   // Make sure the GameWindow is visible.
                 OnLoadInternal(EventArgs.Empty);
@@ -591,6 +599,7 @@ namespace OpenTK
         /// <summary>
         /// Gets the primary Keyboard device, or null if no Keyboard exists.
         /// </summary>
+        [Obsolete("Use KeyDown, KeyUp and KeyPress events or OpenTK.Input.Keyboard instead.")]
         public KeyboardDevice Keyboard
         {
             get { return InputDriver.Keyboard.Count > 0 ? InputDriver.Keyboard[0] : null; }
@@ -603,6 +612,7 @@ namespace OpenTK
         /// <summary>
         /// Gets the primary Mouse device, or null if no Mouse exists.
         /// </summary>
+        [Obsolete("Use MouseMove, MouseDown, MouseUp and MouseWheel events or OpenTK.Input.Mouse, instead.")]
         public MouseDevice Mouse
         {
             get { return InputDriver.Mouse.Count > 0 ? InputDriver.Mouse[0] : null; }
@@ -878,7 +888,18 @@ namespace OpenTK
             {
                 EnsureUndisposed();
                 GraphicsContext.Assert();
-                return vsync;
+                if (Context.SwapInterval < 0)
+                {
+                    return VSyncMode.Adaptive;
+                }
+                else if (Context.SwapInterval == 0)
+                {
+                    return VSyncMode.Off;
+                }
+                else
+                {
+                    return VSyncMode.On;
+                }
             }
             set
             {
@@ -898,7 +919,6 @@ namespace OpenTK
                         Context.SwapInterval = -1;
                         break;
                 }
-                vsync = value;
             }
         }
 

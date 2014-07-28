@@ -42,12 +42,17 @@ namespace OpenTK.Input
         // then we'll need to increase these limits.
         internal const int MaxAxes = (int)JoystickAxis.Last + 1;
         internal const int MaxButtons = (int)JoystickButton.Last + 1;
+        internal const int MaxHats = (int)JoystickHat.Last + 1;
 
         const float ConversionFactor = 1.0f / short.MaxValue;
 
-        unsafe fixed short axes[MaxAxes];
-        int buttons;
         int packet_number;
+        int buttons;
+        unsafe fixed short axes[MaxAxes];
+        JoystickHatState hat0;
+        JoystickHatState hat1;
+        JoystickHatState hat2;
+        JoystickHatState hat3;
         bool is_connected;
 
         #region Public Members
@@ -74,6 +79,28 @@ namespace OpenTK.Input
         public ButtonState GetButton(JoystickButton button)
         {
             return (buttons & (1 << (int)button)) != 0 ? ButtonState.Pressed : ButtonState.Released;
+        }
+
+        /// <summary>
+        /// Gets the hat.
+        /// </summary>
+        /// <returns>The hat.</returns>
+        /// <param name="hat">Hat.</param>
+        public JoystickHatState GetHat(JoystickHat hat)
+        {
+            switch (hat)
+            {
+                case JoystickHat.Hat0:
+                    return hat0;
+                case JoystickHat.Hat1:
+                    return hat1;
+                case JoystickHat.Hat2:
+                    return hat2;
+                case JoystickHat.Hat3:
+                    return hat3;
+                default:
+                    return new JoystickHatState();
+            }
         }
 
         /// <summary>
@@ -118,9 +145,10 @@ namespace OpenTK.Input
                 sb.Append(String.Format("{0:f4}", GetAxis(JoystickAxis.Axis0 + i)));
             }
             return String.Format(
-                "{{Axes:{0}; Buttons: {1}; IsConnected: {2}}}",
+                "{{Axes:{0}; Buttons: {1}; Hat: {2}; IsConnected: {3}}}",
                 sb.ToString(),
                 Convert.ToString((int)buttons, 2).PadLeft(16, '0'),
+                hat0,
                 IsConnected);
         }
 
@@ -197,14 +225,38 @@ namespace OpenTK.Input
 
         internal void SetButton(JoystickButton button, bool value)
         {
-            int index = 1 << (int)button;
+            int index = (int)button;
+            if (index < 0 || index >= MaxButtons)
+                throw new ArgumentOutOfRangeException("button");
+
             if (value)
             {
-                buttons |= index;
+                buttons |= 1 << index;
             }
             else
             {
-                buttons &= ~index;
+                buttons &= ~(1 << index);
+            }
+        }
+
+        internal void SetHat(JoystickHat hat, JoystickHatState value)
+        {
+            switch (hat)
+            {
+                case JoystickHat.Hat0:
+                    hat0 = value;
+                    break;
+                case JoystickHat.Hat1:
+                    hat1 = value;
+                    break;
+                case JoystickHat.Hat2:
+                    hat2 = value;
+                    break;
+                case JoystickHat.Hat3:
+                    hat3 = value;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("hat");
             }
         }
 
@@ -251,6 +303,11 @@ namespace OpenTK.Input
             for (int i = 0; equals && i < MaxAxes; i++)
             {
                 equals &= GetAxisUnsafe(i) == other.GetAxisUnsafe(i);
+            }
+            for (int i = 0; equals && i < MaxHats; i++)
+            {
+                JoystickHat hat = JoystickHat.Hat0 + i;
+                equals &= GetHat(hat).Equals(other.GetHat(hat));
             }
             return equals;
         }

@@ -32,8 +32,12 @@ using System.Runtime.Remoting.Messaging;
 using System.Security;
 using System.Runtime.InteropServices;
 
+#pragma warning disable 0169
+
 namespace OpenTK.Platform.SDL2
 {
+    using Surface = IntPtr;
+    using Cursor = IntPtr;
 
     partial class SDL
 	{
@@ -106,6 +110,26 @@ namespace OpenTK.Platform.SDL2
             //while (Marshal.ReadByte(ptr) != 0)
             //    strlen++;
         }
+
+        #region Cursor
+
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_CreateColorCursor", ExactSpelling = true)]
+        public static extern Cursor CreateColorCursor(Surface surface, int hot_x, int hot_y);
+
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_FreeCursor", ExactSpelling = true)]
+        public static extern void FreeCursor(Cursor cursor);
+
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GetDefaultCursor", ExactSpelling = true)]
+        public static extern IntPtr GetDefaultCursor();
+
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_SetCursor", ExactSpelling = true)]
+        public static extern void SetCursor(Cursor cursor);
+
+        #endregion
 
         [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_AddEventWatch", ExactSpelling = true)]
@@ -249,6 +273,10 @@ namespace OpenTK.Platform.SDL2
         [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GetModState", ExactSpelling = true)]
         public static extern Keymod GetModState();
+
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GetMouseState", ExactSpelling = true)]
+        public static extern ButtonFlags GetMouseState(out int hx, out int hy);
 
         [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_GetNumDisplayModes", ExactSpelling = true)]
@@ -427,10 +455,46 @@ namespace OpenTK.Platform.SDL2
 		[DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_HapticClose", ExactSpelling = true)]
 		public static extern void HapticClose(IntPtr haptic);
 
+        public static int PeepEvents(ref Event e, EventAction action, EventType min, EventType max)
+        {
+            unsafe
+            {
+                fixed (Event* pe = &e)
+                {
+                    return PeepEvents(pe, 1, action, min, max);
+                }
+            }
+        }
+
+        public static int PeepEvents(Event[] e, int count, EventAction action, EventType min, EventType max)
+        {
+            if (e == null)
+                throw new ArgumentNullException();
+            if (count <= 0 || count > e.Length)
+                throw new ArgumentOutOfRangeException();
+
+            unsafe
+            {
+                fixed (Event *pe = e)
+                {
+                    return PeepEvents(pe, count, action, min, max);
+                }
+            }
+        }
+
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_PeepEvents", ExactSpelling = true)]
+        unsafe static extern int PeepEvents(Event* e, int count, EventAction action, EventType min, EventType max);
+
+
         [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_PixelFormatEnumToMasks", ExactSpelling = true)]
         public static extern bool PixelFormatEnumToMasks(uint format, out int bpp, 
             out uint rmask, out uint gmask, out uint bmask, out uint amask);
+
+        [SuppressUnmanagedCodeSecurity]
+        [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_PollEvent", ExactSpelling = true)]
+        public static extern int PollEvent(out Event e);
 
         [SuppressUnmanagedCodeSecurity]
         [DllImport(lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SDL_PumpEvents", ExactSpelling = true)]
@@ -664,6 +728,13 @@ namespace OpenTK.Platform.SDL2
         CORE = 0x0001,
         COMPATIBILITY = 0x0002,
         ES = 0x0004
+    }
+
+    enum EventAction
+    {
+        Add,
+        Peek,
+        Get
     }
 
     enum EventState
@@ -1452,6 +1523,13 @@ namespace OpenTK.Platform.SDL2
         [FieldOffset(0)]
         public DropEvent drop;
 #endif
+
+        // Ensure the structure is big enough
+        // This hack is necessary to ensure compatibility
+        // with different SDL versions, which might have
+        // different sizeof(SDL_Event).
+        [FieldOffset(0)]
+        private unsafe fixed byte reserved[128];
     }
 
     [StructLayout(LayoutKind.Explicit)]
@@ -1573,8 +1651,8 @@ namespace OpenTK.Platform.SDL2
         public UInt32 Which;
         public Button Button;
         public State State;
+        public byte Clicks;
         byte padding1;
-        byte padding2;
         public Int32 X;
         public Int32 Y;
     }
@@ -1585,10 +1663,7 @@ namespace OpenTK.Platform.SDL2
         public uint Timestamp;
         public uint WindowID;
         public uint Which;
-        public State State;
-        byte padding1;
-        byte padding2;
-        byte padding3;
+        public ButtonFlags State;
         public Int32 X;
         public Int32 Y;
         public Int32 Xrel;
@@ -1618,10 +1693,6 @@ namespace OpenTK.Platform.SDL2
         }
 
         public const uint TouchMouseID = 0xffffffff;
-
-        public static class GL
-        {
-        }
     }
 
     struct Rect

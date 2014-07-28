@@ -39,7 +39,6 @@ namespace OpenTK.Platform.Windows
 
         // Input event data.
         static RawInput data = new RawInput();
-        static readonly int rawInputStructSize = API.RawInputSize;
 
         WinRawKeyboard keyboard_driver;
         WinRawMouse mouse_driver;
@@ -125,6 +124,7 @@ namespace OpenTK.Platform.Windows
                 case WindowMessage.DEVICECHANGE:
                     ((WinRawKeyboard)KeyboardDriver).RefreshDevices();
                     ((WinRawMouse)MouseDriver).RefreshDevices();
+                    ((WinMMJoystick)JoystickDriver).RefreshDevices();
                     break;
             }
             return base.WindowProcedure(handle, message, wParam, lParam);
@@ -143,7 +143,7 @@ namespace OpenTK.Platform.Windows
             {
                 gamepad_driver = new XInputJoystick();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Debug.Print("[Win] XInput driver not supported, falling back to WinMM");
                 gamepad_driver = new MappedGamePadDriver();

@@ -40,22 +40,24 @@ namespace OpenTK.Input
     {
         byte axis_count;
         byte button_count;
-        byte dpad_count;
+        byte hat_count;
         bool is_connected;
 	    private bool supports_haptics;
 
 	    #region Constructors
 
-        internal JoystickCapabilities(int axis_count, int button_count, bool is_connected, bool supports_haptics)
+        internal JoystickCapabilities(int axis_count, int button_count, int hat_count, bool is_connected, bool supports_haptics)
         {
-            if (axis_count < 0 || axis_count >= JoystickState.MaxAxes)
+            if (axis_count < 0 || axis_count > JoystickState.MaxAxes)
                 throw new ArgumentOutOfRangeException("axis_count");
-            if (button_count < 0 || button_count >= JoystickState.MaxButtons)
+            if (button_count < 0 || button_count > JoystickState.MaxButtons)
                 throw new ArgumentOutOfRangeException("axis_count");
+            if (hat_count < 0 || hat_count > JoystickState.MaxHats)
+                throw new ArgumentOutOfRangeException("hat_count");
 
             this.axis_count = (byte)axis_count;
             this.button_count = (byte)button_count;
-            this.dpad_count = 0; // Todo: either remove dpad_count or add it as a parameter
+            this.hat_count = (byte)hat_count;
             this.is_connected = is_connected;
 	        this.supports_haptics = supports_haptics;
         }
@@ -78,6 +80,14 @@ namespace OpenTK.Input
         public int ButtonCount
         {
             get { return button_count; }
+        }
+
+        /// <summary>
+        /// Gets the number of hats supported by this <see cref="JoystickDevice"/>.
+        /// </summary>
+        public int HatCount
+        {
+            get { return hat_count; }
         }
 
         /// <summary>
@@ -105,8 +115,8 @@ namespace OpenTK.Input
 	    public override string ToString()
         {
             return String.Format(
-                "{{Axes: {0}; Buttons: {1}; IsConnected: {2}; SupportsHaptics: {3}}}",
-                AxisCount, ButtonCount, IsConnected, SupportsHaptics);
+                "{{Axes: {0}; Buttons: {1}; Hats: {2}; IsConnected: {3}; SupportsHaptics: {4}}}",
+                AxisCount, ButtonCount, HatCount, IsConnected, SupportsHaptics);
         }
 
         /// <summary>
@@ -119,6 +129,7 @@ namespace OpenTK.Input
             return
                 AxisCount.GetHashCode() ^
                 ButtonCount.GetHashCode() ^
+	            HatCount.GetHashCode() ^
                 IsConnected.GetHashCode() ^
 				SupportsHaptics.GetHashCode();
         }
@@ -138,15 +149,6 @@ namespace OpenTK.Input
 
         #endregion
 
-        #region Private Members
-
-        int DPadCount
-        {
-            get { return dpad_count; }
-        }
-
-        #endregion
-
         #region IEquatable<JoystickCapabilities> Members
 
         /// <summary>
@@ -160,6 +162,7 @@ namespace OpenTK.Input
             return
                 AxisCount == other.AxisCount &&
                 ButtonCount == other.ButtonCount &&
+                HatCount == other.HatCount &&
                 IsConnected == other.IsConnected &&
 				SupportsHaptics == other.SupportsHaptics;
         }

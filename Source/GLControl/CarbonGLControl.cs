@@ -32,6 +32,7 @@ using System.Windows.Forms;
 
 using OpenTK.Graphics;
 using OpenTK.Platform;
+using OpenTK.Platform.MacOS;
 
 namespace OpenTK
 {
@@ -49,11 +50,29 @@ namespace OpenTK
             window_info = Utilities.CreateMacOSCarbonWindowInfo(control.Handle, false, true);
         }
 
+        private int GetXOffset()
+        {
+            return control.Location.X;
+        }
+
+        private int GetYOffset()
+        {
+            if (control.TopLevelControl != null) 
+            {
+                System.Drawing.Point offset = control.PointToScreen (control.Location);
+                System.Drawing.Point windowOffset = control.TopLevelControl.PointToScreen (System.Drawing.Point.Empty);
+                int relativeY = offset.Y - windowOffset.Y; //control.TopLevelControl.Location.Y is not the same as windowOffset.Y for some reason.
+                return control.TopLevelControl.ClientSize.Height - control.Bottom - relativeY;
+            }
+            return control.Location.Y;
+        }
+
         #region IGLControl Members
 
         public IGraphicsContext CreateContext(int major, int minor, GraphicsContextFlags flags)
         {
-            return new GraphicsContext(mode, WindowInfo, major, minor, flags);
+            // AGL does not support OpenGL profiles
+            return new AglContext(mode, WindowInfo, GraphicsContext.CurrentContext, GetXOffset, GetYOffset);
         }
 
         // TODO: Fix this

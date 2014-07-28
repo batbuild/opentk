@@ -75,11 +75,11 @@ namespace OpenTK.Graphics.OpenGL
 
         internal const string Library = "opengl32.dll";
 
-        static SortedList<string, bool> AvailableExtensions = new SortedList<string, bool>();
         static readonly object sync_root = new object();
 
         static IntPtr[] EntryPoints;
-        static string[] EntryPointNames;
+        static byte[] EntryPointNames;
+        static int[] EntryPointNameOffsets;
 
         #endregion
 
@@ -90,8 +90,9 @@ namespace OpenTK.Graphics.OpenGL
         /// </summary>
         public GL()
         {
-            EntryPointsInstance = EntryPoints;
-            EntryPointNamesInstance = EntryPointNames;
+            _EntryPointsInstance = EntryPoints;
+            _EntryPointNamesInstance = EntryPointNames;
+            _EntryPointNameOffsetsInstance = EntryPointNameOffsets;
         }
 
         #endregion
@@ -1244,6 +1245,93 @@ namespace OpenTK.Graphics.OpenGL
 
         public static partial class Ext
         {
+            /// <summary>[requires: EXT_direct_state_access]</summary>
+            [Obsolete("Use ClearNamedBufferSubData(..., format, type, data) instead.")]
+            public static void ClearNamedBufferSubData(Int32 buffer, OpenTK.Graphics.OpenGL.ExtDirectStateAccess internalformat, OpenTK.Graphics.OpenGL.PixelFormat format, OpenTK.Graphics.OpenGL.PixelType type, IntPtr offset, IntPtr size, IntPtr data)
+            {
+                ClearNamedBufferSubData(buffer, internalformat, offset, size, format, type, data);
+            }
+
+            /// <summary>[requires: EXT_direct_state_access]</summary>
+            [Obsolete("Use ClearNamedBufferSubData(..., format, type, data) instead.")]
+            [CLSCompliant(false)]
+            public static void ClearNamedBufferSubData<T6>(Int32 buffer, OpenTK.Graphics.OpenGL.ExtDirectStateAccess internalformat, OpenTK.Graphics.OpenGL.PixelFormat format, OpenTK.Graphics.OpenGL.PixelType type, IntPtr offset, IntPtr size, [InAttribute, OutAttribute] T6[] data)
+                where T6 : struct
+            {
+                ClearNamedBufferSubData(buffer, internalformat, offset, size, format, type, data);
+            }
+
+            /// <summary>[requires: EXT_direct_state_access]</summary>
+            [Obsolete("Use ClearNamedBufferSubData(..., format, type, data) instead.")]
+            [CLSCompliant(false)]
+            public static void ClearNamedBufferSubData<T6>(Int32 buffer, OpenTK.Graphics.OpenGL.ExtDirectStateAccess internalformat, OpenTK.Graphics.OpenGL.PixelFormat format, OpenTK.Graphics.OpenGL.PixelType type, IntPtr offset, IntPtr size, [InAttribute, OutAttribute] T6[,] data)
+                where T6 : struct
+            {
+                ClearNamedBufferSubData(buffer, internalformat, offset, size, format, type, data);
+            }
+
+            /// <summary>[requires: EXT_direct_state_access]</summary>
+            [Obsolete("Use ClearNamedBufferSubData(..., format, type, data) instead.")]
+            [CLSCompliant(false)]
+            public static void ClearNamedBufferSubData<T6>(Int32 buffer, OpenTK.Graphics.OpenGL.ExtDirectStateAccess internalformat, OpenTK.Graphics.OpenGL.PixelFormat format, OpenTK.Graphics.OpenGL.PixelType type, IntPtr offset, IntPtr size, [InAttribute, OutAttribute] T6[,,] data)
+                where T6 : struct
+            {
+                ClearNamedBufferSubData(buffer, internalformat, offset, size, format, type, data);
+            }
+
+            /// <summary>[requires: EXT_direct_state_access]</summary>
+            [Obsolete("Use ClearNamedBufferSubData(..., format, type, data) instead.")]
+            [CLSCompliant(false)]
+            public static void ClearNamedBufferSubData<T6>(Int32 buffer, OpenTK.Graphics.OpenGL.ExtDirectStateAccess internalformat, OpenTK.Graphics.OpenGL.PixelFormat format, OpenTK.Graphics.OpenGL.PixelType type, IntPtr offset, IntPtr size, [InAttribute, OutAttribute] ref T6 data)
+                where T6 : struct
+            {
+                ClearNamedBufferSubData(buffer, internalformat, offset, size, format, type, ref data);
+            }
+
+            /// <summary>[requires: EXT_direct_state_access]</summary>
+            [Obsolete("Use ClearNamedBufferSubData(..., format, type, data) instead.")]
+            [CLSCompliant(false)]
+            public static void ClearNamedBufferSubData(UInt32 buffer, OpenTK.Graphics.OpenGL.ExtDirectStateAccess internalformat, OpenTK.Graphics.OpenGL.PixelFormat format, OpenTK.Graphics.OpenGL.PixelType type, IntPtr offset, IntPtr size, IntPtr data)
+            {
+                ClearNamedBufferSubData(buffer, internalformat, offset, size, format, type, data);
+            }
+
+            /// <summary>[requires: EXT_direct_state_access]</summary>
+            [Obsolete("Use ClearNamedBufferSubData(..., format, type, data) instead.")]
+            [CLSCompliant(false)]
+            public static void ClearNamedBufferSubData<T6>(UInt32 buffer, OpenTK.Graphics.OpenGL.ExtDirectStateAccess internalformat, OpenTK.Graphics.OpenGL.PixelFormat format, OpenTK.Graphics.OpenGL.PixelType type, IntPtr offset, IntPtr size, [InAttribute, OutAttribute] T6[] data)
+                where T6 : struct
+            {
+                ClearNamedBufferSubData(buffer, internalformat, offset, size, format, type, data);
+            }
+
+            /// <summary>[requires: EXT_direct_state_access]</summary>
+            [Obsolete("Use ClearNamedBufferSubData(..., format, type, data) instead.")]
+            [CLSCompliant(false)]
+            public static void ClearNamedBufferSubData<T6>(UInt32 buffer, OpenTK.Graphics.OpenGL.ExtDirectStateAccess internalformat, OpenTK.Graphics.OpenGL.PixelFormat format, OpenTK.Graphics.OpenGL.PixelType type, IntPtr offset, IntPtr size, [InAttribute, OutAttribute] T6[,] data)
+                where T6 : struct
+            {
+                ClearNamedBufferSubData(buffer, internalformat, offset, size, format, type, data);
+            }
+
+            /// <summary>[requires: EXT_direct_state_access]</summary>
+            [Obsolete("Use ClearNamedBufferSubData(..., format, type, data) instead.")]
+            [CLSCompliant(false)]
+            public static void ClearNamedBufferSubData<T6>(UInt32 buffer, OpenTK.Graphics.OpenGL.ExtDirectStateAccess internalformat, OpenTK.Graphics.OpenGL.PixelFormat format, OpenTK.Graphics.OpenGL.PixelType type, IntPtr offset, IntPtr size, [InAttribute, OutAttribute] T6[,,] data)
+                where T6 : struct
+            {
+                ClearNamedBufferSubData(buffer, internalformat, offset, size, format, type, data);
+            }
+
+            /// <summary>[requires: EXT_direct_state_access]</summary>
+            [Obsolete("Use ClearNamedBufferSubData(..., format, type, data) instead.")]
+            [CLSCompliant(false)]
+            public static void ClearNamedBufferSubData<T6>(UInt32 buffer, OpenTK.Graphics.OpenGL.ExtDirectStateAccess internalformat, OpenTK.Graphics.OpenGL.PixelFormat format, OpenTK.Graphics.OpenGL.PixelType type, IntPtr offset, IntPtr size, [InAttribute, OutAttribute] ref T6 data)
+                where T6 : struct
+            {
+                ClearNamedBufferSubData(buffer, internalformat, offset, size, format, type, ref data);
+            }
+
             [Obsolete("Use ProgramParameter(..., AssemblyProgramParameterArb, ...) instead.")]
             public static void ProgramParameter(Int32 program, ExtGeometryShader4 pname, Int32 value)
             {
@@ -1268,26 +1356,73 @@ namespace OpenTK.Graphics.OpenGL
         #endregion
     }
 
+    #pragma warning disable 1574 // XML comment cref attribute could not be resolved, compiler bug in Mono 3.4.0
+
+    /// <summary>
+    /// Defines the signature of a debug callback for 
+    /// <see cref="GL.Amd.DebugMessageCallback"/>.
+    /// </summary>
+    /// <param name="id">The id of this debug message.</param>
+    /// <param name="category">The <see cref="AmdDebugOutput"/> category for this debug message.</param>
+    /// <param name="severity">The <see cref="AmdDebugOutput"/> severity for this debug message.</param>
+    /// <param name="length">The length of this debug message.</param>
+    /// <param name="message">A pointer to a null-terminated ASCII C string, representing the content of this debug message.</param>
+    /// <param name="userParam">A pointer to a user-specified parameter.</param>
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     public delegate void DebugProcAmd(int id,
         AmdDebugOutput category, AmdDebugOutput severity,
         int length, IntPtr message, IntPtr userParam);
 
+    /// <summary>
+    /// Defines the signature of a debug callback for 
+    /// <see cref="GL.Arb.DebugMessageCallback"/>.
+    /// </summary>
+    /// <param name="source">The <see cref="DebugSource"/> for this debug message.</param>
+    /// <param name="type">The <see cref="DebugType"/> for this debug message.</param>
+    /// <param name="id">The id of this debug message.</param>
+    /// <param name="severity">The <see cref="DebugSeverity"/> for this debug message.</param>
+    /// <param name="length">The length of this debug message.</param>
+    /// <param name="message">A pointer to a null-terminated ASCII C string, representing the content of this debug message.</param>
+    /// <param name="userParam">A pointer to a user-specified parameter.</param>
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     public delegate void DebugProcArb(
         DebugSource source, DebugType type, int id,
         DebugSeverity severity, int length, IntPtr message,
         IntPtr userParam);
 
+    /// <summary>
+    /// Defines the signature of a debug callback for 
+    /// <see cref="GL.DebugMessageCallback"/>.
+    /// </summary>
+    /// <param name="source">The <see cref="DebugSource"/> for this debug message.</param>
+    /// <param name="type">The <see cref="DebugType"/> for this debug message.</param>
+    /// <param name="id">The id of this debug message.</param>
+    /// <param name="severity">The <see cref="DebugSeverity"/> for this debug message.</param>
+    /// <param name="length">The length of this debug message.</param>
+    /// <param name="message">A pointer to a null-terminated ASCII C string, representing the content of this debug message.</param>
+    /// <param name="userParam">A pointer to a user-specified parameter.</param>
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     public delegate void DebugProc(
         DebugSource source, DebugType type, int id,
         DebugSeverity severity, int length, IntPtr message,
         IntPtr userParam);
 
+    /// <summary>
+    /// Defines the signature of a debug callback for 
+    /// <see cref="GL.Khr.DebugMessageCallback"/>.
+    /// </summary>
+    /// <param name="source">The <see cref="DebugSource"/> for this debug message.</param>
+    /// <param name="type">The <see cref="DebugType"/> for this debug message.</param>
+    /// <param name="id">The id of this debug message.</param>
+    /// <param name="severity">The <see cref="DebugSeverity"/> for this debug message.</param>
+    /// <param name="length">The length of this debug message.</param>
+    /// <param name="message">A pointer to a null-terminated ASCII C string, representing the content of this debug message.</param>
+    /// <param name="userParam">A pointer to a user-specified parameter.</param>
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     public delegate void DebugProcKhr(
         DebugSource source, DebugType type, int id,
         DebugSeverity severity, int length, IntPtr message,
         IntPtr userParam);
+
+    #pragma warning restore 1574 // XML comment cref attribute could not be resolved, compiler bug in Mono 3.4.0
 }

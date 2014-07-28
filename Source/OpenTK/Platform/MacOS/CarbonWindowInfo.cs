@@ -41,9 +41,12 @@ namespace OpenTK.Platform.MacOS
         IntPtr windowRef;
         bool ownHandle = false;
         bool disposed = false;
-        bool isControl = false;
+        bool isControl = true;
         bool goFullScreenHack = false;
         bool goWindowedHack = false;
+
+        GetInt xOffset;
+        GetInt yOffset;
 
         #region Constructors
 
@@ -58,6 +61,12 @@ namespace OpenTK.Platform.MacOS
             this.windowRef = windowRef;
             this.ownHandle = ownHandle;
             this.isControl = isControl;
+        }
+
+        public CarbonWindowInfo(IntPtr windowRef, bool ownHandle, bool isControl, GetInt getX, GetInt getY) : this(windowRef, ownHandle, isControl)
+        {
+            this.xOffset = getX;
+            this.yOffset = getY;
         }
 
         #endregion
@@ -104,6 +113,16 @@ namespace OpenTK.Platform.MacOS
         // (e.g. MonoGame)
         public IntPtr WindowHandle { get { return Handle; } set { Handle = value; } }
 
+        public GetInt XOffset
+        {
+            get { return xOffset; }
+            set { xOffset = value; }
+        }
+        public GetInt YOffset
+        {
+            get { return yOffset; }
+            set { yOffset = value; }
+        }
         #endregion
 
         #region IDisposable Members
@@ -125,8 +144,6 @@ namespace OpenTK.Platform.MacOS
             
             if (ownHandle)
             {
-                Debug.Print("Disposing window {0}.", windowRef);
-                Carbon.API.DisposeWindow(this.windowRef);
                 windowRef = IntPtr.Zero;
             }
             

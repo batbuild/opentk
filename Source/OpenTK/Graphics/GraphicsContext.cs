@@ -39,7 +39,17 @@ namespace OpenTK.Graphics
     /// </summary>
     public sealed class GraphicsContext : IGraphicsContext, IGraphicsContextInternal
     {
+        /// <summary>
+        /// Used to retrive function pointers by name. 
+        /// </summary>
+        /// <param name="function">The function name.</param>
+        /// <returns>A function pointer to <paramref name="function"/>, or <c>IntPtr.Zero</c></returns>
         public delegate IntPtr GetAddressDelegate(string function);
+
+        /// <summary>
+        /// Used to return the handel of the current OpenGL context.
+        /// </summary>
+        /// <returns>The current OpenGL context, or <c>IntPtr.Zero</c> if no context is on the calling thread.</returns>
         public delegate ContextHandle GetCurrentContextDelegate();
 
         #region --- Fields ---
@@ -111,7 +121,7 @@ namespace OpenTK.Graphics
                     Debug.Print("GraphicsContextFlags: {0}", flags);
                     Debug.Print("Requested version: {0}.{1}", major, minor);
 
-                    IGraphicsContext shareContext = shareContext = FindSharedContext();
+                    IGraphicsContext shareContext = FindSharedContext();
                     
                     // Todo: Add a DummyFactory implementing IPlatformFactory.
                     if (designMode)
@@ -140,6 +150,7 @@ namespace OpenTK.Graphics
 
                         implementation = factory.CreateGLContext(mode, window, shareContext, direct_rendering, major, minor, flags);
                         handle_cached = ((IGraphicsContextInternal)implementation).Context;
+                        factory.RegisterResource(this);
                     }
 
                     AddContext(this);
@@ -177,6 +188,10 @@ namespace OpenTK.Graphics
         {
             if (getAddress == null || getCurrent == null)
                 throw new ArgumentNullException();
+
+            // Make sure OpenTK has been initialized.
+            // Fixes https://github.com/opentk/opentk/issues/52
+            Toolkit.Init();
 
             lock (SyncRoot)
             {
@@ -497,8 +512,10 @@ namespace OpenTK.Graphics
         [Obsolete("Use SwapInterval property instead.")]
         public bool VSync
         {
+#pragma warning disable 0612, 0618 // CS0612/CS0618: 'member' is obsolete
             get { return implementation.VSync; }
-            set { implementation.VSync = value;  }
+            set { implementation.VSync = value; }
+#pragma warning restore 0612, 0618
         }
 
         /// <summary>
@@ -585,7 +602,10 @@ namespace OpenTK.Graphics
         /// </returns>
         IntPtr IGraphicsContextInternal.GetAddress(string function)
         {
-            return (implementation as IGraphicsContextInternal).GetAddress(function);
+            IntPtr name = System.Runtime.InteropServices.Marshal.StringToHGlobalAnsi(function);
+            IntPtr address = (implementation as IGraphicsContextInternal).GetAddress(name);
+            System.Runtime.InteropServices.Marshal.FreeHGlobal(name);
+            return address;
         }
 
         /// <summary>
@@ -646,7 +666,7 @@ namespace OpenTK.Graphics
 
         /// <summary>
         /// Marks this context as deleted, but does not actually release unmanaged resources
-        /// due to the threading requirements of OpenGL. Use <see cref="GraphicsContext.Dispose"/>
+        /// due to the threading requirements of OpenGL. Use <see cref="GraphicsContext.Dispose()"/>
         /// instead.
        /// </summary>
         ~GraphicsContext()
