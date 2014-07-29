@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>OpenTK</id>
-        <version>1.1.1550.5715</version>
-        <title>OpenTK</title>
+        <id>OpenTK.GLControl.Duality</id>
+        <version>1.1.0.0</version>
+        <title>OpenTK.GLControl</title>
         <authors>@BatCatGames</authors>
         <projectUrl>https://github.com/BraveSirAndrew/opentk.git</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -11,7 +11,7 @@
         <language>en-IE</language>
     </metadata>
     <files>
-        <file src="Binaries\OpenTK\Release\OpenTK.dll" target="lib\net40\OpenTK.dll" />
-        <file src="Binaries\OpenTK\Release\OpenTK.xml" target="lib\net40\OpenTK.xml" />
+        <file src="Binaries\OpenTK\Release\OpenTK.GLControl.dll" target="lib\net40\OpenTK.GLControl.dll" />
+        <file src="Binaries\OpenTK\Release\OpenTK.GLControl.xml" target="lib\net40\OpenTK.GLControl.xml" />
     </files>
 </package>
