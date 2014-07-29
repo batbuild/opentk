@@ -3,7 +3,7 @@
     <metadata>
         <id>OpenTK.Duality</id>
         <version>0.1.0.0</version>
-        <title>OpenTK</title>
+        <title>OpenTK.Duality</title>
         <authors>@BatCatGames</authors>
         <projectUrl>https://github.com/BraveSirAndrew/opentk.git</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
