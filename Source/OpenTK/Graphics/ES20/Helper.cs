@@ -3,10 +3,11 @@
 // The Open Toolkit Library License
 //
 // Copyright (c) 2006 - 2009 the Open Toolkit library.
+// Copyright 2013 Xamarin Inc
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights to 
+// in the Software without restriction, including without limitation the rights to
 // use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 // the Software, and to permit persons to whom the Software is furnished to do
 // so, subject to the following conditions:
@@ -27,10 +28,6 @@
 
 using System;
 using System.Collections.Generic;
-#if !MINIMAL
-using System.Drawing;
-#endif
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace OpenTK.Graphics.ES20
@@ -40,26 +37,8 @@ namespace OpenTK.Graphics.ES20
     /// </summary>
     public sealed partial class GL : GraphicsBindingsBase
     {
-        const string Library = "libGLESv2.dll";
+        public const string Library = "libGLESv2.dll";
         static readonly object sync_root = new object();
-
-        static IntPtr[] EntryPoints;
-        static byte[] EntryPointNames;
-        static int[] EntryPointNameOffsets;
-
-        #region Constructors
-
-        /// <summary>
-        /// Constructs a new instance.
-        /// </summary>
-        public GL()
-        {
-            _EntryPointsInstance = EntryPoints;
-            _EntryPointNamesInstance = EntryPointNames;
-            _EntryPointNameOffsetsInstance = EntryPointNameOffsets;
-        }
-
-        #endregion
 
         #region --- Protected Members ---
 
@@ -85,7 +64,7 @@ namespace OpenTK.Graphics.ES20
 
         #region public static void ClearColor() overloads
 
-        public static void ClearColor(Color color)
+        public static void ClearColor(System.Drawing.Color color)
         {
             GL.ClearColor(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f, color.A / 255.0f);
         }
@@ -99,7 +78,7 @@ namespace OpenTK.Graphics.ES20
 
         #region public static void BlendColor() overloads
 
-        public static void BlendColor(Color color)
+        public static void BlendColor(System.Drawing.Color color)
         {
             GL.BlendColor(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f, color.A / 255.0f);
         }
@@ -160,7 +139,7 @@ namespace OpenTK.Graphics.ES20
         {
             unsafe
             {
-                fixed (float* matrix_ptr = &matrix.Row0.X)
+				fixed (float* matrix_ptr = &matrix.Row0.X)
                 {
                     GL.UniformMatrix2(location, 1, transpose, matrix_ptr);
                 }
@@ -171,7 +150,7 @@ namespace OpenTK.Graphics.ES20
         {
             unsafe
             {
-                fixed (float* matrix_ptr = &matrix.Row0.X)
+				fixed (float* matrix_ptr = &matrix.Row0.X)
                 {
                     GL.UniformMatrix3(location, 1, transpose, matrix_ptr);
                 }
@@ -199,11 +178,23 @@ namespace OpenTK.Graphics.ES20
         public static string GetActiveAttrib(int program, int index, out int size, out ActiveAttribType type)
         {
             int length;
-			GetProgram(program, GetProgramParameterName.ActiveAttributeMaxLength, out length);
+            GetProgram(program, ProgramParameter.ActiveAttributeMaxLength, out length);
             StringBuilder sb = new StringBuilder(length == 0 ? 1 : length * 2);
 
             GetActiveAttrib(program, index, sb.Capacity, out length, out size, out type, sb);
+
             return sb.ToString();
+        }
+
+	[Obsolete]
+        public static string GetActiveAttrib(int program, int index, out int size, out All type)
+        {
+            ActiveAttribType t;
+	    string str = GetActiveAttrib(program, index, out size, out t);
+
+	    type = (All)(int) t;
+
+            return str;
         }
 
         #endregion
@@ -213,10 +204,11 @@ namespace OpenTK.Graphics.ES20
         public static string GetActiveUniform(int program, int uniformIndex, out int size, out ActiveUniformType type)
         {
             int length;
-			GetProgram(program, GetProgramParameterName.ActiveUniformMaxLength, out length);
+            GetProgram(program, ProgramParameter.ActiveUniformMaxLength, out length);
 
             StringBuilder sb = new StringBuilder(length == 0 ? 1 : length);
             GetActiveUniform(program, uniformIndex, sb.Capacity, out length, out size, out type, sb);
+
             return sb.ToString();
         }
 
@@ -285,7 +277,7 @@ namespace OpenTK.Graphics.ES20
             unsafe
             {
                 int length;
-				GL.GetProgram(program, GetProgramParameterName.InfoLogLength, out length); if (length == 0)
+                GL.GetProgram(program, ProgramParameter.InfoLogLength, out length); if (length == 0)
                 {
                     info = String.Empty;
                     return;
@@ -376,7 +368,33 @@ namespace OpenTK.Graphics.ES20
 
         public static void DrawElements(BeginMode mode, int count, DrawElementsType type, int offset)
         {
-            DrawElements((PrimitiveType)mode, count, type, new IntPtr(offset));
+            DrawElements(mode, count, type, offset);
+        }
+
+        #endregion
+
+        #region public static int GenTexture()
+
+        public static int GenTexture()
+        {
+            int id;
+            GenTextures(1, out id);
+            return id;
+        }
+
+        #endregion
+
+        #region public static void DeleteTexture(int id)
+
+        public static void DeleteTexture(int id)
+        {
+            DeleteTextures(1, ref id);
+        }
+
+        [CLSCompliant(false)]
+        public static void DeleteTexture(uint id)
+        {
+            DeleteTextures(1, ref id);
         }
 
         #endregion
@@ -423,17 +441,17 @@ namespace OpenTK.Graphics.ES20
 
         #region Viewport
 
-        public static void Viewport(Size size)
+        public static void Viewport(System.Drawing.Size size)
         {
             GL.Viewport(0, 0, size.Width, size.Height);
         }
 
-        public static void Viewport(Point location, Size size)
+        public static void Viewport(System.Drawing.Point location, System.Drawing.Size size)
         {
             GL.Viewport(location.X, location.Y, size.Width, size.Height);
         }
 
-        public static void Viewport(Rectangle rectangle)
+        public static void Viewport(System.Drawing.Rectangle rectangle)
         {
             GL.Viewport(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
         }
@@ -450,6 +468,12 @@ namespace OpenTK.Graphics.ES20
 #endif
         #endregion
 
+        public static 
+        OpenTK.Graphics.ES20.ErrorCode GetErrorCode()
+        {
+            return (ErrorCode) Core.GetError();
+        }
+
 #pragma warning restore 3019
 #pragma warning restore 1591
 #pragma warning restore 1572
@@ -457,42 +481,4 @@ namespace OpenTK.Graphics.ES20
 
         #endregion
     }
-
-    #pragma warning disable 1574 // XML comment cref attribute could not be resolved, compiler bug in Mono 3.4.0
-
-    /// <summary>
-    /// Defines the signature of a debug callback for 
-    /// <see cref="GL.DebugMessageCallback"/>.
-    /// </summary>
-    /// <param name="source">The <see cref="DebugSource"/> for this debug message.</param>
-    /// <param name="type">The <see cref="DebugType"/> for this debug message.</param>
-    /// <param name="id">The id of this debug message.</param>
-    /// <param name="severity">The <see cref="DebugSeverity"/> for this debug message.</param>
-    /// <param name="length">The length of this debug message.</param>
-    /// <param name="message">A pointer to a null-terminated ASCII C string, representing the content of this debug message.</param>
-    /// <param name="userParam">A pointer to a user-specified parameter.</param>
-    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-    public delegate void DebugProc(
-        DebugSource source, DebugType type, int id,
-        DebugSeverity severity, int length, IntPtr message,
-        IntPtr userParam);
-
-    /// <summary>
-    /// Defines the signature of a debug callback for 
-    /// <see cref="GL.Khr.DebugMessageCallback"/>.
-    /// </summary>
-    /// <param name="source">The <see cref="DebugSource"/> for this debug message.</param>
-    /// <param name="type">The <see cref="DebugType"/> for this debug message.</param>
-    /// <param name="id">The id of this debug message.</param>
-    /// <param name="severity">The <see cref="DebugSeverity"/> for this debug message.</param>
-    /// <param name="length">The length of this debug message.</param>
-    /// <param name="message">A pointer to a null-terminated ASCII C string, representing the content of this debug message.</param>
-    /// <param name="userParam">A pointer to a user-specified parameter.</param>
-    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-    public delegate void DebugProcKhr(
-        DebugSource source, DebugType type, int id,
-        DebugSeverity severity, int length, IntPtr message,
-        IntPtr userParam);
-
-    #pragma warning restore 1574 // XML comment cref attribute could not be resolved, compiler bug in Mono 3.4.0
 }

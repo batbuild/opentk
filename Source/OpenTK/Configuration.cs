@@ -44,6 +44,7 @@ namespace OpenTK
     {
         static bool runningOnWindows, runningOnUnix, runningOnX11, runningOnMacOS, runningOnLinux;
         static bool runningOnMono;
+		static bool runningOnAnroid;
         volatile static bool initialized;
         readonly static object InitLock = new object();
 
@@ -207,6 +208,7 @@ namespace OpenTK
             //   versions are not ABI-compatible)
             // - Successful SDL2 initialization (sometimes the
             //   binary exists but fails to initialize correctly)
+			#if !__ANDROID__
             var version = new Platform.SDL2.Version();
             try
             {
@@ -250,7 +252,7 @@ namespace OpenTK
                 Debug.Print("SDL2 is supported. Version is {0}.{1}.{2}",
                     version.Major, version.Minor, version.Patch);
             }
-
+			#endif
             return supported;
         }
 
@@ -291,9 +293,12 @@ namespace OpenTK
 
         static bool DetectX11()
         {
+			#if !__ANDROID__
             // Detect whether X is present.
             try { return OpenTK.Platform.X11.API.DefaultDisplay != IntPtr.Zero; }
             catch { return false; }
+			#endif
+			return false;
         }
 
         #endregion

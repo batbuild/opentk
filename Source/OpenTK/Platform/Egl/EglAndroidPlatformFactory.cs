@@ -23,28 +23,23 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 //
+
+
 #endregion
 
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Text;
+
 using OpenTK.Graphics;
+using OpenTK.Platform;
 
-namespace OpenTK.Platform
+namespace OpenTK.Android
 {
-    // Provides the foundation for all desktop IGraphicsContext implementations.
-    abstract class DesktopGraphicsContext : GraphicsContextBase
-    {
-        public override void LoadAll()
-		{
-			Stopwatch time = new Stopwatch();
-
-            new OpenTK.Graphics.OpenGL.GL().LoadEntryPoints();
-            new OpenTK.Graphics.OpenGL4.GL().LoadEntryPoints();
-            new OpenTK.Graphics.ES11.GL().LoadEntryPoints();
-            new OpenTK.Graphics.ES20.GL().LoadEntryPoints();
-            new OpenTK.Graphics.ES30.GL().LoadEntryPoints();
-
-            Debug.WriteLine(String.Format("Bindings loaded in {0} ms.", time.Elapsed.TotalMilliseconds));
-        }
-    }
+	/*
+	class EglAndroidPlatformFactory : PlatformFactoryBase
+	{
+	}
+	*/
 }
+

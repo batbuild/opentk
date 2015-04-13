@@ -57,16 +57,8 @@ namespace OpenTK.Graphics.ES20
 
         public ErrorHelper(IGraphicsContext context)
         {
-            if (context == null)
-                throw new GraphicsContextMissingException();
+			Context = null;
 
-            Context = (GraphicsContext)context;
-            lock (SyncRoot)
-            {
-                if (!ContextErrors.ContainsKey(Context))
-                    ContextErrors.Add(Context, new List<ErrorCode>());
-            }
-            ResetErrors();
         }
 
         #endregion
@@ -78,46 +70,15 @@ namespace OpenTK.Graphics.ES20
         [Conditional("DEBUG")]
         internal void ResetErrors()
         {
-            if (Context.ErrorChecking)
-            {
-                while ((ErrorCode)GL.GetError() != ErrorCode.NoError)
-                { }
-            }
+            
         }
 
         // Retrieve all OpenGL errors and throw an exception if anything other than NoError is returned.
         [Conditional("DEBUG")]
         internal void CheckErrors()
         {
-            if (Context.ErrorChecking)
-            {
-                List<ErrorCode> error_list = ContextErrors[Context];
-                error_list.Clear();
-                ErrorCode error;
-                do
-                {
-                    error = (ErrorCode)GL.GetError();
-                    error_list.Add(error);
-                } while (error != ErrorCode.NoError);
-
-                if (error_list.Count != 1)
-                {
-                    StringBuilder sb = new StringBuilder();
-                    foreach (ErrorCode e in error_list)
-                    {
-                        if (e != ErrorCode.NoError)
-                        {
-                            sb.Append(e.ToString());
-                            sb.Append(", ");
-                        }
-                        else
-                            break;
-                    }
-                    sb.Remove(sb.Length - 2, 2); // Remove the last comma
-
-                    throw new GraphicsErrorException(sb.ToString());
-                }
-            }
+            
+         
         }
 
         #endregion
