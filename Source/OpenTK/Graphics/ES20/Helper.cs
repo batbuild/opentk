@@ -24,6 +24,9 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 //
+using System.Runtime.InteropServices;
+
+
 #endregion
 
 using System;
@@ -39,6 +42,11 @@ namespace OpenTK.Graphics.ES20
     {
         public const string Library = "libGLESv2.dll";
         static readonly object sync_root = new object();
+        #if !__ANDROID__
+        static IntPtr[] EntryPoints;
+        static byte[] EntryPointNames;
+        static int[] EntryPointNameOffsets;
+        #endif
 
         #region --- Protected Members ---
 
@@ -375,17 +383,19 @@ namespace OpenTK.Graphics.ES20
 
         #region public static int GenTexture()
 
+        #if __ANDROID__
         public static int GenTexture()
         {
             int id;
             GenTextures(1, out id);
             return id;
         }
+        #endif
 
         #endregion
 
         #region public static void DeleteTexture(int id)
-
+        #if __ANDROID__
         public static void DeleteTexture(int id)
         {
             DeleteTextures(1, ref id);
@@ -396,7 +406,7 @@ namespace OpenTK.Graphics.ES20
         {
             DeleteTextures(1, ref id);
         }
-
+        #endif
         #endregion
 
         #region Get[Float|Double]
@@ -471,7 +481,11 @@ namespace OpenTK.Graphics.ES20
         public static 
         OpenTK.Graphics.ES20.ErrorCode GetErrorCode()
         {
-            return (ErrorCode) Core.GetError();
+            #if __ANDROID__
+			return (ErrorCode)Core.GetError();
+            #else
+            return (ErrorCode)GL.GetError();
+            #endif
         }
 
 #pragma warning restore 3019
@@ -481,4 +495,43 @@ namespace OpenTK.Graphics.ES20
 
         #endregion
     }
+	#if !__ANDROID__
+    #pragma warning disable 1574 // XML comment cref attribute could not be resolved, compiler bug in Mono 3.4.0
+
+    /// <summary>
+    /// Defines the signature of a debug callback for 
+    /// <see cref="GL.DebugMessageCallback"/>.
+    /// </summary>
+    /// <param name="source">The <see cref="DebugSource"/> for this debug message.</param>
+    /// <param name="type">The <see cref="DebugType"/> for this debug message.</param>
+    /// <param name="id">The id of this debug message.</param>
+    /// <param name="severity">The <see cref="DebugSeverity"/> for this debug message.</param>
+    /// <param name="length">The length of this debug message.</param>
+    /// <param name="message">A pointer to a null-terminated ASCII C string, representing the content of this debug message.</param>
+    /// <param name="userParam">A pointer to a user-specified parameter.</param>
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    public delegate void DebugProc(
+        DebugSource source, DebugType type, int id,
+        DebugSeverity severity, int length, IntPtr message,
+        IntPtr userParam);
+
+    /// <summary>
+    /// Defines the signature of a debug callback for 
+    /// <see cref="GL.Khr.DebugMessageCallback"/>.
+    /// </summary>
+    /// <param name="source">The <see cref="DebugSource"/> for this debug message.</param>
+    /// <param name="type">The <see cref="DebugType"/> for this debug message.</param>
+    /// <param name="id">The id of this debug message.</param>
+    /// <param name="severity">The <see cref="DebugSeverity"/> for this debug message.</param>
+    /// <param name="length">The length of this debug message.</param>
+    /// <param name="message">A pointer to a null-terminated ASCII C string, representing the content of this debug message.</param>
+    /// <param name="userParam">A pointer to a user-specified parameter.</param>
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    public delegate void DebugProcKhr(
+        DebugSource source, DebugType type, int id,
+        DebugSeverity severity, int length, IntPtr message,
+        IntPtr userParam);
+
+    #pragma warning restore 1574 // XML comment cref attribute could not be resolved, compiler bug in Mono 3.4.0
+	#endif
 }
