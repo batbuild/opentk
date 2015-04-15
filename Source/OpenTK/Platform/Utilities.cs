@@ -185,6 +185,7 @@ namespace OpenTK.Platform
         internal static GraphicsContext.GetAddressDelegate CreateGetAddress()
         {
             GraphicsContext.GetAddressDelegate loader = null;
+			#if !__ANDROID__
             if (Configuration.RunningOnWindows)
             {
                 loader = Platform.Windows.Wgl.GetProcAddress;
@@ -198,6 +199,7 @@ namespace OpenTK.Platform
                 loader = Platform.MacOS.NS.GetAddress;
             }
             else
+			#endif
             {
                 throw new PlatformNotSupportedException();
             }
@@ -243,13 +245,17 @@ namespace OpenTK.Platform
         /// <returns>A new IWindowInfo instance.</returns>
         public static IWindowInfo CreateX11WindowInfo(IntPtr display, int screen, IntPtr windowHandle, IntPtr rootWindow, IntPtr visualInfo)
         {
-            Platform.X11.X11WindowInfo window = new OpenTK.Platform.X11.X11WindowInfo();
+			#if !__ANDROID__
+			Platform.X11.X11WindowInfo window = new OpenTK.Platform.X11.X11WindowInfo();
             window.Display = display;
             window.Screen = screen;
             window.Handle = windowHandle;
             window.RootWindow = rootWindow;
             window.Visual = visualInfo;
             return window;
+			#else
+			return null;
+			#endif
         }
 
         #endregion
@@ -263,7 +269,11 @@ namespace OpenTK.Platform
         /// <returns>A new IWindowInfo instance.</returns>
         public static IWindowInfo CreateWindowsWindowInfo(IntPtr windowHandle)
         {
+			#if !__ANDROID__
             return new OpenTK.Platform.Windows.WinWindowInfo(windowHandle, null);
+			#else
+			return null;
+			#endif
         }
 
         #endregion
@@ -294,7 +304,11 @@ namespace OpenTK.Platform
         public static IWindowInfo CreateMacOSCarbonWindowInfo(IntPtr windowHandle, bool ownHandle, bool isControl, 
             OpenTK.Platform.MacOS.GetInt xOffset, OpenTK.Platform.MacOS.GetInt yOffset)
         {
+			#if !__ANDROID__
             return new OpenTK.Platform.MacOS.CarbonWindowInfo(windowHandle, false, isControl, xOffset, yOffset);
+			#else
+			return null;
+			#endif
         }
 
         #endregion
@@ -309,7 +323,11 @@ namespace OpenTK.Platform
         /// <returns>A new IWindowInfo instance.</returns>
         public static IWindowInfo CreateMacOSWindowInfo(IntPtr windowHandle)
         {
+			#if !__ANDROID__
             return new OpenTK.Platform.MacOS.CocoaWindowInfo(windowHandle);
+			#else
+			return null;
+			#endif
         }
 
         /// <summary>
@@ -320,7 +338,11 @@ namespace OpenTK.Platform
         /// <returns>A new IWindowInfo instance.</returns>
         public static IWindowInfo CreateMacOSWindowInfo(IntPtr windowHandle, IntPtr viewHandle)
         {
+			#if !__ANDROID__
             return new OpenTK.Platform.MacOS.CocoaWindowInfo(windowHandle, viewHandle);
+			#else
+			return null;
+			#endif
         }
 
         #endregion
@@ -347,8 +369,12 @@ namespace OpenTK.Platform
         /// <returns>A new IWindowInfo instance.</returns>
         public static IWindowInfo CreateSdl2WindowInfo(IntPtr windowHandle)
         {
+			#if !__ANDROID__
             return new OpenTK.Platform.SDL2.Sdl2WindowInfo(
                 windowHandle, null);
+			#else
+			return null;
+			#endif
         }
 
         #endregion

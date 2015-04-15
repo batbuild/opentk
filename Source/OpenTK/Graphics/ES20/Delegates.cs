@@ -1,8 +1,8 @@
-﻿#region License
 //
 // The Open Toolkit Library License
 //
-// Copyright (c) 2006 - 2009 the Open Toolkit library.
+// Copyright (c) 2006 - 2010 the Open Toolkit library.
+// Copyright 2013 Xamarin Inc
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,28 +23,15 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 //
-#endregion
 
-using System;
-using System.Diagnostics;
-using OpenTK.Graphics;
 
-namespace OpenTK.Platform
+
+namespace OpenTK.Graphics.ES20
 {
-    // Provides the foundation for all desktop IGraphicsContext implementations.
-    abstract class DesktopGraphicsContext : GraphicsContextBase
-    {
-        public override void LoadAll()
-		{
-			Stopwatch time = new Stopwatch();
-
-            new OpenTK.Graphics.OpenGL.GL().LoadEntryPoints();
-            new OpenTK.Graphics.OpenGL4.GL().LoadEntryPoints();
-            new OpenTK.Graphics.ES11.GL().LoadEntryPoints();
-            new OpenTK.Graphics.ES20.GL().LoadEntryPoints();
-            new OpenTK.Graphics.ES30.GL().LoadEntryPoints();
-
-            Debug.WriteLine(String.Format("Bindings loaded in {0} ms.", time.Elapsed.TotalMilliseconds));
-        }
-    }
+    using System;
+    using System.Text;
+    using System.Runtime.InteropServices;
+    #pragma warning disable 0649
+    #pragma warning disable 3019
+    #pragma warning disable 1591
 }

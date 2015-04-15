@@ -36,7 +36,7 @@ namespace OpenTK.Platform
     {
         public override void LoadAll()
         {
-            Stopwatch time = Stopwatch.StartNew();
+            Stopwatch time = new Stopwatch();
 
             new OpenTK.Graphics.ES11.GL().LoadEntryPoints();
             new OpenTK.Graphics.ES20.GL().LoadEntryPoints();
