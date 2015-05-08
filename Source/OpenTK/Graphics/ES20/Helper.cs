@@ -42,12 +42,36 @@ namespace OpenTK.Graphics.ES20
     {
         public const string Library = "libGLESv2.dll";
         static readonly object sync_root = new object();
-        #if !__ANDROID__
-        static IntPtr[] EntryPoints;
+        
+		static IntPtr[] EntryPoints;
         static byte[] EntryPointNames;
         static int[] EntryPointNameOffsets;
-        #endif
 
+		/// <summary>
+		/// Constructs a new instance.
+		/// </summary>
+		public GL()
+		{
+			_EntryPointsInstance = EntryPoints;
+			_EntryPointNamesInstance = EntryPointNames;
+			_EntryPointNameOffsetsInstance = EntryPointNameOffsets;
+		}
+
+		internal override void LoadEntryPoints ()
+		{
+			unsafe
+			{
+				fixed (byte* name = _EntryPointNamesInstance)
+				{
+					for (int i = 0; i < _EntryPointsInstance.Length; i++)
+					{
+						_EntryPointsInstance[i] = OpenTK.Android.EntryPointHelper.GetAddress(
+							new IntPtr(name + _EntryPointNameOffsetsInstance[i]));
+					}
+				}
+			}
+		}
+        
         #region --- Protected Members ---
 
         /// <summary>
@@ -383,7 +407,7 @@ namespace OpenTK.Graphics.ES20
 
         #region public static int GenTexture()
 
-        #if __ANDROID__
+        #if !__ANDROID__
         public static int GenTexture()
         {
             int id;
@@ -395,7 +419,7 @@ namespace OpenTK.Graphics.ES20
         #endregion
 
         #region public static void DeleteTexture(int id)
-        #if __ANDROID__
+        #if !__ANDROID__
         public static void DeleteTexture(int id)
         {
             DeleteTextures(1, ref id);
@@ -481,11 +505,7 @@ namespace OpenTK.Graphics.ES20
         public static 
         OpenTK.Graphics.ES20.ErrorCode GetErrorCode()
         {
-            #if __ANDROID__
-			return (ErrorCode)Core.GetError();
-            #else
             return (ErrorCode)GL.GetError();
-            #endif
         }
 
 #pragma warning restore 3019
@@ -495,8 +515,7 @@ namespace OpenTK.Graphics.ES20
 
         #endregion
     }
-	#if !__ANDROID__
-    #pragma warning disable 1574 // XML comment cref attribute could not be resolved, compiler bug in Mono 3.4.0
+	#pragma warning disable 1574 // XML comment cref attribute could not be resolved, compiler bug in Mono 3.4.0
 
     /// <summary>
     /// Defines the signature of a debug callback for 
@@ -533,5 +552,4 @@ namespace OpenTK.Graphics.ES20
         IntPtr userParam);
 
     #pragma warning restore 1574 // XML comment cref attribute could not be resolved, compiler bug in Mono 3.4.0
-	#endif
 }

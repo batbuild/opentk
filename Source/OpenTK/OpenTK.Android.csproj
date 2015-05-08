@@ -40,12 +40,16 @@
     <ConsolePause>false</ConsolePause>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>ANDROID</DefineConstants>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
-    <Reference Include="Mono.Android" />
+    <Reference Include="Mono.Android">
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <ItemGroup>
@@ -260,15 +264,19 @@
     <Compile Include="Input\Joystick.cs" />
     <Compile Include="Platform\Egl\EglAndroidPlatformFactory.cs" />
     <Compile Include="Platform\Android\AndroidGameView.cs" />
-    <Compile Include="Graphics\ES20\Core.cs" />
-    <Compile Include="Graphics\ES20\Delegates.cs" />
-    <Compile Include="Graphics\ES20\Enums.cs" />
-    <Compile Include="Graphics\ES20\ES.cs" />
-    <Compile Include="Graphics\ES20\ES.Obsolete.cs" />
+    <Compile Include="Graphics\ES20\ES20.cs" />
+    <Compile Include="Graphics\ES20\ES20Enums.cs" />
+    <Compile Include="Platform\Android\DL.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Graphics\ES30\" />
     <Folder Include="Graphics\OpenGL4\" />
     <Folder Include="Platform\Android\" />
   </ItemGroup>
+  <Target Name="AfterBuild">
+    <Exec Command="$(OutputPath)..\..\Tools\Debug\Rewrite.exe $(OutputPath)OpenTK.Android.dll ..\..\OpenTK.snk -debug" Condition="$(OS) == 'Windows_NT' and $(Configuration) == 'Debug'" />
+    <Exec Command="$(OutputPath)..\..\Tools\Release\Rewrite.exe $(OutputPath)OpenTK.Android.dll ..\..\OpenTK.snk" Condition="$(OS) == 'Windows_NT' and $(Configuration) != 'Debug'" />
+    <Exec WorkingDirectory="$(SolutionDir)Binaries/Tools/Debug" Command="mono ./Rewrite.exe $(SolutionDir)Binaries/OpenTK/Debug/OpenTK.Android.dll $(SolutionDir)OpenTK.snk -debug" Condition="$(OS) != 'Windows_NT' and $(Configuration) == 'Debug'" />
+    <Exec WorkingDirectory="$(SolutionDir)Binaries/Tools/Release" Command="mono ./Rewrite.exe $(SolutionDir)Binaries/OpenTK/Release/OpenTK.Android.dll $(SolutionDir)OpenTK.snk" Condition="$(OS) != 'Windows_NT' and $(Configuration) != 'Debug'" />
+  </Target>
 </Project>

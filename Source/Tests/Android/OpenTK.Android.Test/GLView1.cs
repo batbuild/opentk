@@ -2,7 +2,6 @@
 
 using OpenTK;
 using OpenTK.Graphics;
-using OpenTK.Graphics.ES20;
 using OpenTK.Platform;
 
 using Android.Views;
@@ -26,6 +25,7 @@ namespace OpenTK.Android.Test
 
 			// Run the render loop
 			//Run ();
+		
 		}
 
 
@@ -40,8 +40,13 @@ namespace OpenTK.Android.Test
 			// registered that you want to have called
 			base.OnRenderFrame (e);
 
-			GL.ClearColor ((float)r.NextDouble (), 0f, 0f, 0f);
-			GL.Clear (ClearBufferMask.ColorBufferBit);
+			if (SupportsFullGL) {
+				OpenTK.Graphics.OpenGL4.GL.ClearColor (0f, (float)r.NextDouble (), 0f, 0f);
+				OpenTK.Graphics.OpenGL4.GL.Clear (OpenTK.Graphics.OpenGL4.ClearBufferMask.ColorBufferBit);
+			} else {
+				OpenTK.Graphics.ES20.GL.ClearColor ((float)r.NextDouble (), 0f, 0f, 0f);
+				OpenTK.Graphics.ES20.GL.Clear (OpenTK.Graphics.ES20.ClearBufferMask.ColorBufferBit);
+			}
 
 			SwapBuffers ();
 		}

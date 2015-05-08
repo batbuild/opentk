@@ -7,6 +7,7 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 using Android.Content.PM;
+using System.Runtime.InteropServices;
 
 namespace OpenTK.Android.Test
 {
@@ -23,6 +24,8 @@ namespace OpenTK.Android.Test
 			ConfigChanges.Orientation,
 		MainLauncher = true,
 		Icon = "@drawable/icon")]
+	[IntentFilter(new[] { Intent.ActionMain }
+		, Categories = new[] { Intent.CategoryLauncher, "ouya.intent.category.GAME" })]
 	public class MainActivity : Activity
 	{
 		GLView1 view;
@@ -34,10 +37,8 @@ namespace OpenTK.Android.Test
 			// Create our OpenGL view, and display it
 			view = new GLView1 (this);
 			SetContentView (view);
-
-
-
 			view.Run ();
+
 		}
 
 		protected override void OnPause ()

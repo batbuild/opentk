@@ -8,6 +8,7 @@ using Android.Runtime;
 using System.Collections.Generic;
 using Android.Content;
 using Android.App;
+using OpenTK.Platform.Egl;
 
 namespace OpenTK.Android
 {
@@ -41,6 +42,8 @@ namespace OpenTK.Android
 
 		public bool IsResuming { get; private set; }
 
+		public bool SupportsFullGL { get; private set; }
+
 		public AndroidGameView (Context context)
 			: base (context)
 		{
@@ -55,8 +58,21 @@ namespace OpenTK.Android
 			mHolder.AddCallback (this);
 			mHolder.SetType (SurfaceType.Gpu);
 
-			//new OpenTK.Graphics.ES20.GL().LoadEntryPoints();
-			//new OpenTK.Graphics.OpenGL.GL ().LoadEntryPoints ();
+			try {
+				
+				SupportsFullGL = OpenTK.Platform.Egl.Egl.BindAPI (OpenTK.Platform.Egl.RenderApi.GL);
+				if (!SupportsFullGL)
+						OpenTK.Platform.Egl.Egl.BindAPI (OpenTK.Platform.Egl.RenderApi.ES);
+			}catch {
+			}
+
+			if (!SupportsFullGL) {
+				OpenTK.Android.EntryPointHelper.Renderable = OpenTK.Platform.Egl.RenderableFlags.ES2;
+				new OpenTK.Graphics.ES20.GL ().LoadEntryPoints ();
+			} else {
+				OpenTK.Android.EntryPointHelper.Renderable = OpenTK.Platform.Egl.RenderableFlags.GL;
+				new OpenTK.Graphics.OpenGL.GL ().LoadEntryPoints ();
+			}
 		}
 
 		public void SurfaceChanged (ISurfaceHolder holder, global::Android.Graphics.Format format, int width, int height)
@@ -419,7 +435,7 @@ namespace OpenTK.Android
 			public int Depth;
 			public int Stencil;
 
-			public int[] ToConfigAttribs() {
+			public int[] ToConfigAttribs(int renderableType = 4) {
 
 				return new int[] {
 					EGL11.EglRedSize, Red,
@@ -428,7 +444,7 @@ namespace OpenTK.Android
 					EGL11.EglAlphaSize, Alpha,
 					EGL11.EglDepthSize, Depth,
 					EGL11.EglStencilSize, Stencil,
-					EGL11.EglRenderableType, 4,
+					EGL11.EglRenderableType, renderableType,
 					EGL11.EglNone
 				};
 			}
@@ -450,7 +466,7 @@ namespace OpenTK.Android
 			if (eglDisplay == EGL10.EglNoDisplay)
 				throw new Exception ("Could not get EGL display" + GetErrorAsString ());
 
-			int[] version = new int[2];
+			int[] version = SupportsFullGL ? new int[2] {1, 2} : new int[2];
 			if (!egl.EglInitialize (eglDisplay, version))
 				throw new Exception ("Could not initialize EGL display" + GetErrorAsString ());
 
@@ -474,10 +490,11 @@ namespace OpenTK.Android
 			int[] numConfigs = new int[1];
 			EGLConfig[] results = new EGLConfig[1];
 
+			int renderableType = SupportsFullGL ? OpenTK.Platform.Egl.Egl.OPENGL_BIT : OpenTK.Platform.Egl.Egl.OPENGL_ES2_BIT;
 
 			foreach (var config in configs) {
 
-				if (!egl.EglChooseConfig (eglDisplay, config.ToConfigAttribs(), results, 1, numConfigs)) {
+				if (!egl.EglChooseConfig (eglDisplay, config.ToConfigAttribs(renderableType), results, 1, numConfigs)) {
 					continue;
 				}
 				Log.Verbose ("AndroidGameView", string.Format("Selected Config : {0}",config)); 
@@ -488,7 +505,9 @@ namespace OpenTK.Android
 				throw new Exception ("No valid EGL configs found" + GetErrorAsString ());
 			eglConfig = results [0];
 
-			int[] contextAttribs = new int[] { EglContextClientVersion, 2, EGL10.EglNone };
+			int[] contextAttribs =  SupportsFullGL ?
+				new int[] { EGL10.EglNone } :
+				new int[] { EglContextClientVersion, 2, EGL10.EglNone };
 			eglContext = egl.EglCreateContext (eglDisplay, eglConfig, EGL10.EglNoContext, contextAttribs);
 			if (eglContext == null || eglContext == EGL10.EglNoContext) {
 				eglContext = null;
