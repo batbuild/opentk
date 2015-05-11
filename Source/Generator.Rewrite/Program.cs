@@ -102,7 +102,15 @@ namespace OpenTK.Rewrite
                 {
                     foreach (var reference in module.AssemblyReferences)
                     {
-                        var resolved = module.AssemblyResolver.Resolve(reference);
+	                    AssemblyDefinition resolved = null;
+	                    try
+	                    {
+		                    resolved = module.AssemblyResolver.Resolve(reference);
+	                    }
+	                    catch (Exception e)
+	                    {
+		                    Console.WriteLine("Couldn't resolve assembly '{0}': {1}", reference, e.Message);
+	                    }
                         if (reference.Name == "mscorlib")
                         {
                             mscorlib = resolved;

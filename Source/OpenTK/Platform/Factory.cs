@@ -57,12 +57,14 @@ namespace OpenTK.Platform
             Toolkit.Init();
 
             // Create regular platform backend
+			#if !__ANDROID__
             if (Configuration.RunningOnSdl2) Default = new SDL2.Sdl2Factory();
             else if (Configuration.RunningOnX11) Default = new X11.X11Factory();
             else if (Configuration.RunningOnLinux) Default = new Linux.LinuxFactory();
             else if (Configuration.RunningOnWindows) Default = new Windows.WinFactory();
             else if (Configuration.RunningOnMacOS) Default = new MacOS.MacOSFactory();
             else Default = new UnsupportedPlatform();
+
 
             // Create embedded platform backend for EGL / OpenGL ES.
             // Todo: we could probably delay this until the embedded
@@ -89,6 +91,7 @@ namespace OpenTK.Platform
 
             if (Default is UnsupportedPlatform && !(Embedded is UnsupportedPlatform))
                 Default = Embedded;
+			#endif
         }
 
         #endregion
