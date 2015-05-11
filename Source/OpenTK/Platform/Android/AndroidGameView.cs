@@ -1,20 +1,17 @@
 ﻿using System;
-using Android.Opengl;
 using Android.Views;
 using Android.Util;
+using Size = System.Drawing.Size;
 using System.Threading.Tasks;
 using System.Threading;
-using Javax.Microedition.Khronos.Egl;
+//using Javax.Microedition.Khronos.Egl;
 using Android.Runtime;
 using System.Collections.Generic;
 using Android.Content;
 using Android.App;
+using Android.Opengl;
 using OpenTK.Graphics;
 using OpenTK.Platform.Egl;
-using EGLConfig = Javax.Microedition.Khronos.Egl.EGLConfig;
-using EGLContext = Javax.Microedition.Khronos.Egl.EGLContext;
-using EGLDisplay = Javax.Microedition.Khronos.Egl.EGLDisplay;
-using EGLSurface = Javax.Microedition.Khronos.Egl.EGLSurface;
 
 namespace OpenTK.Android
 {
@@ -63,14 +60,6 @@ namespace OpenTK.Android
 			// Add callback to get the SurfaceCreated etc events
 			mHolder.AddCallback (this);
 			mHolder.SetType (SurfaceType.Gpu);
-
-			try {
-				
-				SupportsFullGL = OpenTK.Platform.Egl.Egl.BindAPI (OpenTK.Platform.Egl.RenderApi.GL);
-				if (!SupportsFullGL)
-						OpenTK.Platform.Egl.Egl.BindAPI (OpenTK.Platform.Egl.RenderApi.ES);
-			}catch {
-			}
 		}
 
 		public void SurfaceChanged (ISurfaceHolder holder, global::Android.Graphics.Format format, int width, int height)
@@ -113,8 +102,8 @@ namespace OpenTK.Android
 		public virtual void SwapBuffers ()
 		{
 			EnsureUndisposed ();
-			if (!egl.EglSwapBuffers (eglDisplay, eglSurface)) {
-				if (egl.EglGetError () == EGL11.EglContextLost) {
+			if (!EGL14.EglSwapBuffers (eglDisplay, eglSurface)) {
+				if (EGL14.EglGetError () == EGL14.EglContextLost) {
 					if (lostglContext)
 						System.Diagnostics.Debug.WriteLine ("Lost EGL context" + GetErrorAsString ());
 					lostglContext = true;
@@ -126,7 +115,7 @@ namespace OpenTK.Android
 		public virtual void MakeCurrent ()
 		{
 			EnsureUndisposed ();
-			if (!egl.EglMakeCurrent (eglDisplay, eglSurface,
+			if (!EGL14.EglMakeCurrent (eglDisplay, eglSurface,
 				eglSurface, eglContext)) {
 				System.Diagnostics.Debug.WriteLine ("Error Make Current" + GetErrorAsString ());
 			}
@@ -136,8 +125,8 @@ namespace OpenTK.Android
 		public virtual void ClearCurrent()
 		{
 			EnsureUndisposed ();
-			if (!egl.EglMakeCurrent (eglDisplay, EGL10.EglNoSurface,
-				EGL10.EglNoSurface, EGL10.EglNoContext)) {
+			if (!EGL14.EglMakeCurrent (eglDisplay, EGL14.EglNoSurface,
+				EGL14.EglNoSurface, EGL14.EglNoContext)) {
 				System.Diagnostics.Debug.WriteLine ("Error Clearing Current" + GetErrorAsString ());
 			}
 		}
@@ -388,12 +377,12 @@ namespace OpenTK.Android
 		{
 			Log.Verbose ("AndroidGameView", "DestroyGLContext");
 			if (eglContext != null) {
-				if (!egl.EglDestroyContext (eglDisplay, eglContext))
+				if (!EGL14.EglDestroyContext (eglDisplay, eglContext))
 					throw new Exception ("Could not destroy EGL context" + GetErrorAsString ());
 				eglContext = null;
 			}
 			if (eglDisplay != null) {
-				if (!egl.EglTerminate (eglDisplay))
+				if (!EGL14.EglTerminate (eglDisplay))
 					throw new Exception ("Could not terminate EGL connection" + GetErrorAsString ());
 				eglDisplay = null;
 			}
@@ -404,13 +393,13 @@ namespace OpenTK.Android
 
 		void DestroyGLSurfaceInternal ()
 		{
-			if (!(eglSurface == null || eglSurface == EGL10.EglNoSurface)) {
-				if (!egl.EglMakeCurrent (eglDisplay, EGL10.EglNoSurface,
-					EGL10.EglNoSurface, EGL10.EglNoContext)) {
+			if (!(eglSurface == null || eglSurface == EGL14.EglNoSurface)) {
+				if (!EGL14.EglMakeCurrent (eglDisplay, EGL14.EglNoSurface,
+					EGL14.EglNoSurface, EGL14.EglNoContext)) {
 					Log.Verbose ("AndroidGameView", "Could not unbind EGL surface" + GetErrorAsString ());
 				}
 
-				if (!egl.EglDestroySurface (eglDisplay, eglSurface)) {
+				if (!EGL14.EglDestroySurface (eglDisplay, eglSurface)) {
 					Log.Verbose ("AndroidGameView", "Could not destroy EGL surface" + GetErrorAsString ());
 				}
 			}
@@ -436,14 +425,15 @@ namespace OpenTK.Android
 			public int[] ToConfigAttribs(int renderableType = 4) {
 
 				return new int[] {
-					EGL11.EglRedSize, Red,
-					EGL11.EglGreenSize, Green,
-					EGL11.EglBlueSize, Blue,
-					EGL11.EglAlphaSize, Alpha,
-					EGL11.EglDepthSize, Depth,
-					EGL11.EglStencilSize, Stencil,
-					EGL11.EglRenderableType, renderableType,
-					EGL11.EglNone
+					EGL14.EglSurfaceType, EGL14.EglWindowBit,
+					EGL14.EglRedSize, Red,
+					EGL14.EglGreenSize, Green,
+					EGL14.EglBlueSize, Blue,
+					EGL14.EglAlphaSize, Alpha,
+					EGL14.EglDepthSize, Depth,
+					EGL14.EglStencilSize, Stencil,
+					EGL14.EglRenderableType, renderableType,
+					EGL14.EglNone
 				};
 			}
 
@@ -458,14 +448,22 @@ namespace OpenTK.Android
 			Log.Verbose ("AndroidGameView", "CreateGLContext");
 			lostglContext = false;
 
-			egl = EGLContext.EGL.JavaCast<IEGL10> ();
+			try {
 
-			eglDisplay = egl.EglGetDisplay (EGL10.EglDefaultDisplay);
-			if (eglDisplay == EGL10.EglNoDisplay)
+				SupportsFullGL = OpenTK.Platform.Egl.Egl.BindAPI (OpenTK.Platform.Egl.RenderApi.GL);
+				if (!SupportsFullGL)
+					OpenTK.Platform.Egl.Egl.BindAPI (OpenTK.Platform.Egl.RenderApi.ES);
+			}catch {
+			}
+
+			//eglDisplay = egl.EglGetDisplay (EGL10.EglDefaultDisplay);
+			eglDisplay = EGL14.EglGetDisplay(EGL14.EglDefaultDisplay);
+			if (eglDisplay == EGL14.EglNoDisplay)
 				throw new Exception ("Could not get EGL display" + GetErrorAsString ());
 
-			int[] version = SupportsFullGL ? new int[2] {1, 2} : new int[2];
-			if (!egl.EglInitialize (eglDisplay, version))
+			int[] version = new int[2];
+			//if (!egl.EglInitialize (eglDisplay, version))
+			if (!EGL14.EglInitialize(eglDisplay, version, 0, version, 1))
 				throw new Exception ("Could not initialize EGL display" + GetErrorAsString ());
 
 			int depth = 0;
@@ -492,7 +490,7 @@ namespace OpenTK.Android
 
 			foreach (var config in configs) {
 
-				if (!egl.EglChooseConfig (eglDisplay, config.ToConfigAttribs(renderableType), results, 1, numConfigs)) {
+				if (!EGL14.EglChooseConfig (eglDisplay, config.ToConfigAttribs(renderableType), 0, results, 0, 1, numConfigs, 0)) {
 					continue;
 				}
 				Log.Verbose ("AndroidGameView", string.Format("Selected Config : {0}",config)); 
@@ -503,50 +501,69 @@ namespace OpenTK.Android
 				throw new Exception ("No valid EGL configs found" + GetErrorAsString ());
 			eglConfig = results [0];
 
-			int[] contextAttribs =  SupportsFullGL ?
-				new int[] { EGL10.EglNone } :
-				new int[] { EglContextClientVersion, 2, EGL10.EglNone };
-			eglContext = egl.EglCreateContext (eglDisplay, eglConfig, EGL10.EglNoContext, contextAttribs);
-			if (eglContext == null || eglContext == EGL10.EglNoContext) {
+
+			const int EGL_CONTEXT_MAJOR_VERSION_KHR = 0x3098;
+			const int EGL_CONTEXT_MINOR_VERSION_KHR = 0x30FB;
+			const int EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR = 0x30FD;
+			const int EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT_KHR = 0x00000002;
+
+			int[] contextAttribs = new int[] 
+			{ 
+				EGL_CONTEXT_MAJOR_VERSION_KHR, 4,
+				EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR,
+				EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT_KHR,
+				EGL14.EglNone };
+			eglContext = EGL14.EglCreateContext (eglDisplay, eglConfig, EGL14.EglNoContext, contextAttribs, 0);
+			int[] value = new int[2];
+
+			if (eglContext == null || eglContext == EGL14.EglNoContext) {
 				eglContext = null;
 				throw new Exception ("Could not create EGL context" + GetErrorAsString ());
 			}
+
+			int majVer;
+			if (EGL14.EglQueryContext(eglDisplay, eglContext, EGL_CONTEXT_MAJOR_VERSION_KHR, value, 0))
+				majVer = value[0];
+
+			int minVer;
+			if (EGL14.EglQueryContext(eglDisplay, eglContext, EGL_CONTEXT_MINOR_VERSION_KHR, value, 0))
+				minVer = value[0];
 
 			glContextAvailable = true;
 		}
 
 		private string GetErrorAsString ()
 		{
-			switch (egl.EglGetError ()) {
-			case EGL10.EglSuccess:
+			switch (EGL14.EglGetError ()) {
+			case EGL14.EglSuccess:
 				return "Success";
 
-			case EGL10.EglNotInitialized:
+			case EGL14.EglNotInitialized:
 				return "Not Initialized";
 
-			case EGL10.EglBadAccess:
+			case EGL14.EglBadAccess:
 				return "Bad Access";
-			case EGL10.EglBadAlloc:
+			case EGL14.EglBadAlloc:
 				return "Bad Allocation";
-			case EGL10.EglBadAttribute:
+			case EGL14.EglBadAttribute:
 				return "Bad Attribute";
-			case EGL10.EglBadConfig:
+			case EGL14.EglBadConfig:
 				return "Bad Config";
-			case EGL10.EglBadContext:
+			case EGL14.EglBadContext:
 				return "Bad Context";
-			case EGL10.EglBadCurrentSurface:
+			case EGL14.EglBadCurrentSurface:
 				return "Bad Current Surface";
-			case EGL10.EglBadDisplay:
+			case EGL14.EglBadDisplay:
 				return "Bad Display";
-			case EGL10.EglBadMatch:
+			case EGL14.EglBadMatch:
 				return "Bad Match";
-			case EGL10.EglBadNativePixmap:
+			case EGL14.EglBadNativePixmap:
 				return "Bad Native Pixmap";
-			case EGL10.EglBadNativeWindow:
+			case EGL14.EglBadNativeWindow:
 				return "Bad Native Window";
-			case EGL10.EglBadParameter:
+			case EGL14.EglBadParameter:
 				return "Bad Parameter";
-			case EGL10.EglBadSurface:
+			case EGL14.EglBadSurface:
 				return "Bad Surface";
 
 			default:
@@ -564,14 +581,22 @@ namespace OpenTK.Android
 				// If there is an existing surface, destroy the old one
 				DestroyGLSurfaceInternal ();
 
-				eglSurface = egl.EglCreateWindowSurface (eglDisplay, eglConfig, (Java.Lang.Object)this.Holder, null);
-				if (eglSurface == null || eglSurface == EGL10.EglNoSurface)
+				int[] attribs_config = new int[]{
+					EGL14.EglRenderBuffer, EGL14.EglBackBuffer,
+					EGL14.EglNone
+				};
+				eglSurface = EGL14.EglCreateWindowSurface (eglDisplay, eglConfig, (Java.Lang.Object)this.Holder, attribs_config, 0);
+				if (eglSurface == null || eglSurface == EGL14.EglNoSurface)
 					throw new Exception ("Could not create EGL window surface" + GetErrorAsString ());
 
-				if (!egl.EglMakeCurrent (eglDisplay, eglSurface, eglSurface, eglContext))
+				if (!EGL14.EglMakeCurrent (eglDisplay, eglSurface, eglSurface, eglContext))
 					throw new Exception ("Could not make EGL current" + GetErrorAsString ());
 
 				glSurfaceAvailable = true;
+
+				// DEAN: is this a valid way to get the surface size? Returns the right values for us but not sure
+				// how this will behave on other devices.
+				Size = new Size(RootView.Width, RootView.Height);
 
 			} catch (Exception ex) {
 				Log.Error ("AndroidGameView", ex.ToString ());
@@ -581,9 +606,9 @@ namespace OpenTK.Android
 
 		protected EGLSurface CreatePBufferSurface (EGLConfig config, int[] attribList)
 		{
-			IEGL10 egl = EGLContext.EGL.JavaCast<IEGL10> ();
-			EGLSurface result = egl.EglCreatePbufferSurface (eglDisplay, config, attribList);
-			if (result == null || result == EGL10.EglNoSurface)
+			//            IEGL10 egl = EGLContext.EGL.JavaCast<IEGL10> ();
+			EGLSurface result = EGL14.EglCreatePbufferSurface (eglDisplay, config, attribList, 0);
+			if (result == null || result == EGL14.EglNoSurface)
 				throw new Exception ("EglCreatePBufferSurface");
 			return result;
 		}
@@ -592,7 +617,7 @@ namespace OpenTK.Android
 		{
 			if (lostglContext)
 			{
-				
+
 			}
 			OnContextSet (EventArgs.Empty);
 		}
@@ -615,7 +640,7 @@ namespace OpenTK.Android
 				// the background rendering thread
 				while (!cts.IsCancellationRequested) {
 					//Log.Verbose ("AndroidGameView", "IsGLSurfaceAvailable {0} IsPaused {1} lostcontext {2} surfaceAvailable {3} contextAvailable {4} ThreadID {5}",
-					//	glSurfaceAvailable, isPaused, lostglContext, surfaceAvailable, glContextAvailable,Thread.CurrentThread.ManagedThreadId);
+					//    glSurfaceAvailable, isPaused, lostglContext, surfaceAvailable, glContextAvailable,Thread.CurrentThread.ManagedThreadId);
 					if (glSurfaceAvailable && (isPaused || !surfaceAvailable)) {
 						// Surface we are using needs to go away
 						DestroyGLSurface ();
@@ -722,27 +747,27 @@ namespace OpenTK.Android
 		public override bool OnKeyDown(Keycode keyCode, KeyEvent e)
 		{
 			/*
-			if (GamePad.OnKeyDown(keyCode, e))
-				return true;
+            if (GamePad.OnKeyDown(keyCode, e))
+                return true;
 
-			Keyboard.KeyDown(keyCode);
-			// we need to handle the Back key here because it doesnt work any other way
-			if (keyCode == Keycode.Back)
-				GamePad.Back = true;
+            Keyboard.KeyDown(keyCode);
+            // we need to handle the Back key here because it doesnt work any other way
+            if (keyCode == Keycode.Back)
+                GamePad.Back = true;
 
-			if (keyCode == Keycode.VolumeUp)
-			{
-				AudioManager audioManager = (AudioManager)Context.GetSystemService(Context.AudioService);
-				audioManager.AdjustStreamVolume(Stream.Music, Adjust.Raise, VolumeNotificationFlags.ShowUi);
-				return true;
-			}
+            if (keyCode == Keycode.VolumeUp)
+            {
+                AudioManager audioManager = (AudioManager)Context.GetSystemService(Context.AudioService);
+                audioManager.AdjustStreamVolume(Stream.Music, Adjust.Raise, VolumeNotificationFlags.ShowUi);
+                return true;
+            }
 
-			if (keyCode == Keycode.VolumeDown)
-			{
-				AudioManager audioManager = (AudioManager)Context.GetSystemService(Context.AudioService);
-				audioManager.AdjustStreamVolume(Stream.Music, Adjust.Lower, VolumeNotificationFlags.ShowUi);
-				return true;
-			}*/
+            if (keyCode == Keycode.VolumeDown)
+            {
+                AudioManager audioManager = (AudioManager)Context.GetSystemService(Context.AudioService);
+                audioManager.AdjustStreamVolume(Stream.Music, Adjust.Lower, VolumeNotificationFlags.ShowUi);
+                return true;
+            }*/
 
 			return true;
 		}
@@ -750,17 +775,17 @@ namespace OpenTK.Android
 		public override bool OnKeyUp(Keycode keyCode, KeyEvent e)
 		{
 			/*
-			if (GamePad.OnKeyUp(keyCode, e))
-				return true;
-			Keyboard.KeyUp(keyCode);*/
+            if (GamePad.OnKeyUp(keyCode, e))
+                return true;
+            Keyboard.KeyUp(keyCode);*/
 			return true;
 		}
 
 		public override bool OnGenericMotionEvent(MotionEvent e)
 		{
 			/*
-			if (GamePad.OnGenericMotionEvent(e))
-				return true;
+            if (GamePad.OnGenericMotionEvent(e))
+                return true;
 */
 			return base.OnGenericMotionEvent(e);
 		}
@@ -769,7 +794,7 @@ namespace OpenTK.Android
 
 		#region Properties
 
-		private  IEGL10 egl;
+		//private  IEGL10 egl;
 		private  EGLDisplay eglDisplay;
 		private  EGLConfig eglConfig;
 		private  EGLContext eglContext;
@@ -864,23 +889,26 @@ namespace OpenTK.Android
 			public BackgroundContext (AndroidGameView view)
 			{
 				this.view = view;
-				int[] contextAttribs = new int[] { EglContextClientVersion, 2, EGL10.EglNone };
-				eglContext = view.egl.EglCreateContext (view.eglDisplay, view.eglConfig, view.eglContext, contextAttribs);
-				if (eglContext == null || eglContext == EGL10.EglNoContext) {
+				int[] contextAttribs = new int[] { EglContextClientVersion, 2, EGL14.EglNone };
+				eglContext = EGL14.EglCreateContext (view.eglDisplay, view.eglConfig, view.eglContext, contextAttribs, 0);
+				if (eglContext == null || eglContext == EGL14.EglNoContext) {
 					eglContext = null;
 					throw new Exception ("Could not create EGL context" + view.GetErrorAsString ());
 				}
-				int[] pbufferAttribList = new int [] { EGL10.EglWidth, 64, EGL10.EglHeight, 64, EGL10.EglNone };
+				int[] pbufferAttribList = new int [] { EGL14.EglWidth, 64, EGL14.EglHeight, 64, EGL14.EglNone };
 				surface = view.CreatePBufferSurface (view.eglConfig, pbufferAttribList);
-				if (surface == EGL10.EglNoSurface)
+				if (surface == EGL14.EglNoSurface)
 					throw new Exception ("Could not create Pbuffer Surface" + view.GetErrorAsString ());
 			}
 
 			public void MakeCurrent() {
 				view.ClearCurrent ();
-				view.egl.EglMakeCurrent (view.eglDisplay, surface, surface, eglContext);
+				if (!EGL14.EglMakeCurrent (view.eglDisplay, surface, surface, eglContext)) 
+				{
+					Log.Error ("AndroidGameView", "Error in MakeCurret, " + EGL14.EglGetError ());
+					Console.WriteLine ("Error in MakeCurret, " + EGL14.EglGetError ());
+				}
 			}
 		}
 	}
 }
-
