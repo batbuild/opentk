@@ -9,7 +9,12 @@ namespace OpenTK.Android
 		public static RenderableFlags Renderable;
 		static IntPtr ES1 = DL.Open("/system/lib/libGLESv1_CM.so", DLOpenFlags.Lazy);
 		static IntPtr ES2 = DL.Open("/system/lib/libGLESv2.so", DLOpenFlags.Lazy);
-		static IntPtr GL = DL.Open("/system/lib/libGL.so", DLOpenFlags.Lazy);
+		
+#if __ANDROID__
+		static IntPtr GL = DL.Open("/system/lib/libglcore.so", DLOpenFlags.Lazy);
+#else
+		static IntPtr GL = DL.Open("/system/lib/libgl.so", DLOpenFlags.Lazy);
+#endif
 
 		public static IntPtr GetAddress(IntPtr function)
 		{

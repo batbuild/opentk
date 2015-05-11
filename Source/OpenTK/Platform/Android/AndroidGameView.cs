@@ -1,4 +1,5 @@
 ﻿using System;
+using Android.Opengl;
 using Android.Views;
 using Android.Util;
 using System.Threading.Tasks;
@@ -8,7 +9,12 @@ using Android.Runtime;
 using System.Collections.Generic;
 using Android.Content;
 using Android.App;
+using OpenTK.Graphics;
 using OpenTK.Platform.Egl;
+using EGLConfig = Javax.Microedition.Khronos.Egl.EGLConfig;
+using EGLContext = Javax.Microedition.Khronos.Egl.EGLContext;
+using EGLDisplay = Javax.Microedition.Khronos.Egl.EGLDisplay;
+using EGLSurface = Javax.Microedition.Khronos.Egl.EGLSurface;
 
 namespace OpenTK.Android
 {
@@ -64,14 +70,6 @@ namespace OpenTK.Android
 				if (!SupportsFullGL)
 						OpenTK.Platform.Egl.Egl.BindAPI (OpenTK.Platform.Egl.RenderApi.ES);
 			}catch {
-			}
-
-			if (!SupportsFullGL) {
-				OpenTK.Android.EntryPointHelper.Renderable = OpenTK.Platform.Egl.RenderableFlags.ES2;
-				new OpenTK.Graphics.ES20.GL ().LoadEntryPoints ();
-			} else {
-				OpenTK.Android.EntryPointHelper.Renderable = OpenTK.Platform.Egl.RenderableFlags.GL;
-				new OpenTK.Graphics.OpenGL.GL ().LoadEntryPoints ();
 			}
 		}
 
@@ -649,6 +647,19 @@ namespace OpenTK.Android
 
 							CreateGLContext ();
 							CreateGLSurface ();
+
+							if (!SupportsFullGL)
+							{
+								OpenTK.Android.EntryPointHelper.Renderable = OpenTK.Platform.Egl.RenderableFlags.ES2;
+								new OpenTK.Graphics.ES20.GL().LoadEntryPoints();
+							}
+							else
+							{
+								OpenTK.Android.EntryPointHelper.Renderable = OpenTK.Platform.Egl.RenderableFlags.GL;
+								var contextHandle = new ContextHandle(EGL14.EglGetCurrentContext().Handle);
+								var context = new GraphicsContext(contextHandle, Egl.GetProcAddress, () => contextHandle);
+								new OpenTK.Graphics.OpenGL.GL().LoadEntryPoints();
+							}
 
 							if (!loaded && glContextAvailable)
 								OnLoad (EventArgs.Empty);
