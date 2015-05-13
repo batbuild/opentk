@@ -1,3 +1,6 @@
+Please note this is a branch of OpenTK with a WIP of an android port that works on full Open GL
+
+
 OpenTK
 ======
  
