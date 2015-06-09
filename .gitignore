@@ -32,7 +32,7 @@ Source/OpenTK/Properties/Resources.resources
 # Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
 [Bb]in/
 [Oo]bj/
-
+tools/
 # mstest test results
 TestResults
 
