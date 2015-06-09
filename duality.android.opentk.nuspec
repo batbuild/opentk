@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>OpenTK.Duality</id>
+        <version>0.1.0.0</version>
+        <title>OpenTK.Duality</title>
+        <authors>@BatCatGames</authors>
+        <projectUrl>https://github.com/BraveSirAndrew/opentk.git</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A minimal fork of OpenTK for personal projects.</description>
+        <language>en-IE</language>
+         <description>@description@</description>
+
+        <id>@project@</id>
+        <version>@build.number@</version>
+        <authors>@authors@</authors>
+        <language>en-IE</language>
+        <summary>@summary@</summary>
+        <projectUrl>http://github.com/batbuild/opentk</projectUrl>
+        <licenseUrl>https://github.com/batbuild/opentk/blob/master/Documentation/License.txt</licenseUrl>        
+        <tags>duality, opentk, android</tags>
+        @dependencies@
+    </metadata>
+</package>

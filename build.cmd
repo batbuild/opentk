@@ -1,13 +1,13 @@
 ::@echo off
 cls 
 
-".nuget\nuget.exe" "install" "FAKE.Core" "-OutputDirectory" "Source\packages" "-Version" "3.31.4" "-ExcludeVersion"
-".nuget\nuget.exe" "install" "SourceLink.Fake" "-OutputDirectory" "tools" "-ExcludeVersion" "-version" "0.4.2"
+REM ".nuget\nuget.exe" "install" FAKE -OutputDirectory packages -ExcludeVersion
+REM".nuget\nuget.exe" "install" "SourceLink.Fake" "-OutputDirectory" "tools" "-ExcludeVersion" "-version" "0.4.2"
 
 :Build
 
 
-SET TARGET="android-build"
+SET TARGET="android-pack"
 
 IF NOT [%1]==[] (set TARGET="%1")
 
@@ -18,16 +18,16 @@ IF NOT [%2]==[] (set BUILDMODE="%2")
 :: we need to break the dependency chain
 :: this ensures we do a build before running any tests
 
-if %TARGET%=="Default" (SET RunBuild=1)
-if %TARGET%=="RunUnitTests" (SET RunBuild=1)
-if %TARGET%=="RunIntegrationTests" (SET RunBuild=1)
-if %TARGET%=="CreatePackages" (SET RunBuild=1)
+:: if %TARGET%=="Default" (SET RunBuild=1)
+:: if %TARGET%=="RunUnitTests" (SET RunBuild=1)
+:: if %TARGET%=="RunIntegrationTests" (SET RunBuild=1)
+:: if %TARGET%=="CreatePackages" (SET RunBuild=1)
 
-if NOT "%RunBuild%"=="" (
-"tools\FAKE.Core\tools\Fake.exe" "build.fsx" "target=android-build" "buildMode=%BUILDMODE%"
-)
+:: if NOT "%RunBuild%"=="" (
+:: "packages\FAKE\tools\Fake.exe" "build.fsx" "target=android-pack" "buildMode=%BUILDMODE%"
+:: )
 
-"tools\FAKE.Core\tools\Fake.exe" "build.fsx" "target=%TARGET%" "buildMode=%BUILDMODE%"
+"packages\FAKE\tools\Fake.exe" "build.fsx" "target=%TARGET%" "buildMode=%BUILDMODE%"
 
 rem Bail if we're running a TeamCity build.
 if defined TEAMCITY_PROJECT_NAME goto Quit

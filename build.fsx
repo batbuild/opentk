@@ -1,4 +1,4 @@
-#r @"tools/FAKE.Core/tools/FakeLib.dll"
+#r @"packages/FAKE/tools/FakeLib.dll"
 #load "build-helpers.fsx"
 
 open Fake
@@ -8,24 +8,28 @@ open System.Linq
 open BuildHelpers
 open Fake.XamarinHelper
 
+//Directories
+let openTkBinariesDir = @"Binaries\OpenTK\"
+let nugetPackedDir  = @"\nugetPackages"
 
 let authors = ["Andrea Magnorsky"; "Andrew O'Connor"; "Dean Ellis"; "Adam Duality"]
 
 // project name and description
-let projectName = "OpenTk Duality Android runtime"
+let projectName = "Android.Duality.OpenTK"
 let projectDescription = "OpenTk running on full openGL on Android"
 let projectSummary = projectDescription // TODO: write a summary
-let solutionName = "OpenTK.android.sln"
+let androidSolutionName = "OpenTK.android.sln"
 let projectPath = "Source/OpenTK/OpenTK.Android.csproj"
-let buildMode = getBuildParamOrDefault "buildMode" "Release"
+let buildMode = getBuildParamOrDefault "buildMode" "Debug"
 
 MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some MSBuildVerbosity.Detailed }
 
+Target "Clean" (fun _ -> CleanDirs [openTkBinariesDir; nugetPackedDir; ])
 
 Target "android-build" (fun () ->
-//    RestorePackages solutionName
+    RestorePackages androidSolutionName
 
-    MSBuild null "Build" ["Configuration", buildMode] [solutionName]
+    MSBuild null "Build" ["Configuration", buildMode] [androidSolutionName]
     |> Log "AppBuild-Output: "
 )
 
@@ -36,51 +40,46 @@ Target "android-package" (fun () ->
             Configuration = "Release"
             OutputPath = "Binaries/OpenTK/Release"
         }) 
-//    |> AndroidSignAndAlign (fun defaults ->
-//        {defaults with
-//            KeystorePath = "tipcalc.keystore"
-//            KeystorePassword = "tipcalc" // TODO: don't store this in the build script for a real app!
-//            KeystoreAlias = "tipcalc"
-//        })
+
     |> fun file -> TeamCityHelper.PublishArtifact file.FullName
 )
 
-Target "android-uitests" (fun () ->
-    AndroidPackage (fun defaults ->
-        {defaults with
-            ProjectPath = "Source/OpenTK/OpenTK.Android.csproj"
-            Configuration = "Release"
-            OutputPath = "Binaries/OpenTK/Release"
-        }) |> ignore
+//Target "android-uitests" (fun () ->
+//    AndroidPackage (fun defaults ->
+//        {defaults with
+//            ProjectPath = "Source/OpenTK/OpenTK.Android.csproj"
+//            Configuration = "Release"
+//            OutputPath = "Binaries/OpenTK/Release"
+//        }) |> ignore
+//
+//    let appPath = Directory.EnumerateFiles(Path.Combine("src", "TipCalc.Android", "bin", "Release"), "*.apk", SearchOption.AllDirectories).First()
+//
+//    RunUITests appPath
+//)
 
-    let appPath = Directory.EnumerateFiles(Path.Combine("src", "TipCalc.Android", "bin", "Release"), "*.apk", SearchOption.AllDirectories).First()
 
-    RunUITests appPath
+Target "android-pack"(fun _ ->
+     NuGet (fun p -> 
+        {p with
+            Authors = authors
+            Project = projectName
+            Description = projectDescription                               
+            OutputPath = nugetPackedDir
+            Summary = projectSummary            
+            Version = buildVersion         
+            AccessKey = getBuildParamOrDefault "nugetkey" ""
+            Publish = hasBuildParam "nugetkey"
+            }) 
+            "duality.android.opentk.nuspec"
 )
 
-Target "android-testcloud" (fun () ->
-    AndroidPackage (fun defaults ->
-        {defaults with
-            ProjectPath = "src/TipCalc.Android/TipCalc.Android.csproj"
-            Configuration = "Release"
-            OutputPath = "src/TipCalc.Android/bin/Release"
-        }) |> ignore
-
-    let appPath = Directory.EnumerateFiles(Path.Combine("src", "TipCalc.Android", "bin", "Release"), "*.apk", SearchOption.AllDirectories).First()
-
-    getBuildParam "devices" |> RunTestCloudTests appPath
-)
 //
 //"core-build"
 //  ==> "core-tests"
 //
-"android-build"
-  ==> "android-uitests"
+"Clean"
+  ==> "android-build"
+  ==> "android-pack"
 
-"android-build"
-  ==> "android-testcloud"
 
-"android-build"
-  ==> "android-package"
-
-RunTargetOrDefault "android-uitests"
+RunTargetOrDefault "android-pack"
