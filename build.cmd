@@ -1,8 +1,8 @@
 ::@echo off
 cls 
 
-REM ".nuget\nuget.exe" "install" FAKE -OutputDirectory packages -ExcludeVersion
-REM".nuget\nuget.exe" "install" "SourceLink.Fake" "-OutputDirectory" "tools" "-ExcludeVersion" "-version" "0.4.2"
+".nuget\nuget.exe" "install" FAKE -OutputDirectory packages -ExcludeVersion
+".nuget\nuget.exe" "install" "SourceLink.Fake" "-OutputDirectory" "tools" "-ExcludeVersion" "-version" "0.4.2"
 
 :Build
 
