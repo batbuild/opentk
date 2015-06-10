@@ -10,7 +10,7 @@ open Fake.XamarinHelper
 
 //Directories
 let openTkBinariesDir = @"Binaries\OpenTK\"
-let nugetPackedDir  = @"\nugetPackages"
+let nugetPackedDir  = @".\nugetPackages"
 
 let authors = ["Andrea Magnorsky"; "Andrew O'Connor"; "Dean Ellis"; "Adam Duality"]
 
@@ -59,12 +59,14 @@ Target "android-package" (fun () ->
 
 
 Target "android-pack"(fun _ ->
+
      NuGet (fun p -> 
         {p with
             Authors = authors
             Project = projectName
             Description = projectDescription                               
             OutputPath = nugetPackedDir
+            WorkingDir = @".\"            
             Summary = projectSummary            
             Version = buildVersion         
             AccessKey = getBuildParamOrDefault "nugetkey" ""

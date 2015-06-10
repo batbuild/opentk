@@ -12,7 +12,7 @@ let Exec command args =
     if result <> 0 then failwithf "%s exited with error %d" command result
 
 let RestorePackages solutionFile =
-    Exec "tools/NuGet/NuGet.exe" ("restore " + solutionFile)
+    Exec ".nuget/NuGet.exe" ("restore " + solutionFile)
     solutionFile |> RestoreComponents (fun defaults -> {defaults with ToolPath = "tools/xpkg/xamarin-component.exe" })
 
 let RunNUnitTests dllPath xmlPath =
