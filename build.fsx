@@ -64,14 +64,13 @@ Target "android-pack"(fun _ ->
         {p with
             Authors = authors
             Project = projectName
-            Description = projectDescription                               
-            OutputPath = nugetPackedDir
-            WorkingDir = nugetPackedDir          
+            Description = projectDescription                                                      
             Summary = projectSummary            
-            Version = buildVersion         
+            Version = "0.1."+ buildVersion                    
+            WorkingDir = openTkBinariesDir
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey"
-            PublishUrl = getBuildParamOrDefault "nugetUrl" ""
+            PublishUrl = getBuildParamOrDefault "nugetUrl" ""            
             }) 
             "duality.android.opentk.nuspec"
 )

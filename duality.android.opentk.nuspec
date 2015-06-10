@@ -8,7 +8,10 @@
         <summary>@summary@</summary>
         <projectUrl>http://github.com/batbuild/opentk</projectUrl>
         <licenseUrl>https://github.com/batbuild/opentk/blob/master/Documentation/License.txt</licenseUrl>        
-        <tags>duality, opentk, android</tags>
-        @dependencies@
+        <tags>duality, opentk, android</tags>        
     </metadata>
+    <files>
+        <file src="Binaries\OpenTK\Debug\OpenTK.Android.dll" target="lib\MonoAndroid\OpenTK.Android.dll" />
+        <file src="Binaries\OpenTK\Debug\OpenTK.Android.dll.mdb" target="lib\MonoAndroid\OpenTK.Android.dll.mdb" />
+    </files>
 </package>
