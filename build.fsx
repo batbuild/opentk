@@ -66,7 +66,7 @@ Target "android-pack"(fun _ ->
             Project = projectName
             Description = projectDescription                               
             OutputPath = nugetPackedDir
-            WorkingDir = @".\"            
+            WorkingDir = nugetPackedDir          
             Summary = projectSummary            
             Version = buildVersion         
             AccessKey = getBuildParamOrDefault "nugetkey" ""
