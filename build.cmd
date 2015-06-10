@@ -2,7 +2,7 @@
 cls 
 
 ".nuget\nuget.exe" "install" FAKE -OutputDirectory packages -ExcludeVersion
-".nuget\nuget.exe" "install" "SourceLink.Fake" "-OutputDirectory" "tools" "-ExcludeVersion" "-version" "0.4.2"
+".nuget\nuget.exe" "install" "SourceLink.Fake" "-OutputDirectory" "packages" "-ExcludeVersion" "-version" "0.4.2"
 
 :Build
 
@@ -11,7 +11,8 @@ SET TARGET="android-pack"
 
 IF NOT [%1]==[] (set TARGET="%1")
 
-SET BUILDMODE="Release"
+SET BUILDMODE="Debug"
+
 IF NOT [%2]==[] (set BUILDMODE="%2")
 
 :: because we want to run specific steps inline on qed
