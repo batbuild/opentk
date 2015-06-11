@@ -20,7 +20,8 @@ let projectDescription = "OpenTk running on full openGL on Android"
 let projectSummary = projectDescription // TODO: write a summary
 let androidSolutionName = "OpenTK.android.sln"
 let projectPath = "Source/OpenTK/OpenTK.Android.csproj"
-let buildMode = getBuildParamOrDefault "buildMode" "Debug"
+let solutionConfig = "Debug"
+let buildMode = getBuildParamOrDefault "buildMode" solutionConfig
 
 MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some MSBuildVerbosity.Detailed }
 
@@ -67,7 +68,7 @@ Target "android-pack"(fun _ ->
             OutputPath = nugetPackedDir                                                
             Summary = projectSummary            
             Version = "0.1."+ buildVersion                    
-            WorkingDir = openTkBinariesDir
+            WorkingDir = Path.Combine( openTkBinariesDir, solutionConfig)
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey"
             PublishUrl = getBuildParamOrDefault "nugetUrl" ""            
