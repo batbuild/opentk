@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>@project@</id>
@@ -7,7 +7,6 @@
         <language>en-IE</language>
 		<description>@description@</description>
         <summary>@summary@</summary>
-        <description>@summary@</description>
         <projectUrl>http://github.com/batbuild/opentk</projectUrl>
         <licenseUrl>https://github.com/batbuild/opentk/blob/master/Documentation/License.txt</licenseUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
