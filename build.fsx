@@ -67,7 +67,7 @@ Target "android-pack"(fun _ ->
             OutputPath = nugetPackedDir                                                
             Summary = projectSummary            
             Version = "0.1."+ buildVersion                    
-            WorkingDir = "nuget"
+            WorkingDir = openTkBinariesDir
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey"
             PublishUrl = getBuildParamOrDefault "nugetUrl" ""            
