@@ -72,7 +72,7 @@ Target "android-pack"(fun _ ->
             Publish = hasBuildParam "nugetkey"
             PublishUrl = getBuildParamOrDefault "nugetUrl" ""            
             }) 
-            "duality.android.opentk.nuspec"
+            "nuget/duality.android.opentk.nuspec"
 )
 
 //
