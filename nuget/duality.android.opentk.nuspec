@@ -5,9 +5,11 @@
         <version>@build.number@</version>
         <authors>@authors@</authors>
         <language>en-IE</language>
+		<description>@description@</description>
         <summary>@summary@</summary>
         <projectUrl>http://github.com/batbuild/opentk</projectUrl>
-        <licenseUrl>https://github.com/batbuild/opentk/blob/master/Documentation/License.txt</licenseUrl>        
+        <licenseUrl>https://github.com/batbuild/opentk/blob/master/Documentation/License.txt</licenseUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
         <tags>duality, opentk, android</tags>
         @dependencies@
     </metadata>
