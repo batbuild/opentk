@@ -15,8 +15,8 @@ let nugetPackedDir  = @".\nugetPackages"
 let authors = ["Andrea Magnorsky"; "Andrew O'Connor"; "Dean Ellis"; "Adam Duality"]
 
 // project name and description
-let projectName = "Android.Duality.OpenTK"
-let projectDescription = "OpenTk running on full openGL on Android"
+let projectName = "OpenTK.Duality.Android"
+let projectDescription = "OpenTk for Duality running on full openGL on Android"
 let projectSummary = projectDescription // TODO: write a summary
 let androidSolutionName = "OpenTK.android.sln"
 let projectPath = "Source/OpenTK/OpenTK.Android.csproj"
@@ -67,13 +67,13 @@ Target "android-pack"(fun _ ->
             Description = projectDescription      
             OutputPath = nugetPackedDir                                                
             Summary = projectSummary            
-            Version = "0.1."+ buildVersion                    
+            Version = if isLocalBuild then buildVersion else "0.1."+ buildVersion                    
             WorkingDir = Path.Combine( openTkBinariesDir, solutionConfig)
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey"
             PublishUrl = getBuildParamOrDefault "nugetUrl" ""            
             }) 
-            "nuget/duality.android.opentk.nuspec"
+            "nuget/opentk.duality.android.nuspec"
 )
 
 //
