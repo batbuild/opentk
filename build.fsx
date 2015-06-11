@@ -58,16 +58,16 @@ Target "android-package" (fun () ->
 //)
 
 
-Target "android-pack"(fun _ ->
-
+Target "android-pack"(fun _ ->     
      NuGet (fun p -> 
         {p with
             Authors = authors
             Project = projectName
-            Description = projectDescription                                                      
+            Description = projectDescription      
+            OutputPath = nugetPackedDir                                                
             Summary = projectSummary            
             Version = "0.1."+ buildVersion                    
-            WorkingDir = openTkBinariesDir
+            WorkingDir = "nuget"
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey"
             PublishUrl = getBuildParamOrDefault "nugetUrl" ""            
