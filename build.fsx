@@ -45,20 +45,6 @@ Target "android-package" (fun () ->
     |> fun file -> TeamCityHelper.PublishArtifact file.FullName
 )
 
-//Target "android-uitests" (fun () ->
-//    AndroidPackage (fun defaults ->
-//        {defaults with
-//            ProjectPath = "Source/OpenTK/OpenTK.Android.csproj"
-//            Configuration = "Release"
-//            OutputPath = "Binaries/OpenTK/Release"
-//        }) |> ignore
-//
-//    let appPath = Directory.EnumerateFiles(Path.Combine("src", "TipCalc.Android", "bin", "Release"), "*.apk", SearchOption.AllDirectories).First()
-//
-//    RunUITests appPath
-//)
-
-
 Target "android-pack"(fun _ ->     
      NuGet (fun p -> 
         {p with
@@ -76,10 +62,6 @@ Target "android-pack"(fun _ ->
             "nuget/opentk.duality.android.nuspec"
 )
 
-//
-//"core-build"
-//  ==> "core-tests"
-//
 "Clean"
   ==> "android-build"
   ==> "android-pack"
