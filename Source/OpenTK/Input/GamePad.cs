@@ -73,7 +73,7 @@ namespace OpenTK.Input
         /// <returns>A <c>GamePadState</c> structure describing the state of the gamepad device.</returns>
         public static GamePadState GetState(int index)
         {
-            return driver.GetState(index);
+			return driver.GetState(index);
         }
 
         /// <summary>

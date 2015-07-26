@@ -43,7 +43,7 @@ namespace OpenTK.Input
 
         #region Constructors
 
-        internal GamePadCapabilities(GamePadType type, GamePadAxes axes, Buttons buttons, bool is_connected)
+	    public GamePadCapabilities(GamePadType type, GamePadAxes axes, Buttons buttons, bool is_connected)
             : this()
         {
             gamepad_type = (byte)type;

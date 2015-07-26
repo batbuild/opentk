@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OpenTK.Input
 {
-    interface IGamePadDriver
+	public interface IGamePadDriver
     {
 
         GamePadState GetState(int index);

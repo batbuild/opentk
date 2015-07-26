@@ -162,7 +162,7 @@ namespace OpenTK.Input
 
         #region Internal Members
 
-        internal void SetAxis(GamePadAxes axis, short value)
+	    public void SetAxis(GamePadAxes axis, short value)
         {
             if ((axis & GamePadAxes.LeftX) != 0)
             {
@@ -197,7 +197,7 @@ namespace OpenTK.Input
             }
         }
 
-        internal void SetButton(Buttons button, bool pressed)
+	    public void SetButton(Buttons button, bool pressed)
         {
             if (pressed)
             {
@@ -209,18 +209,18 @@ namespace OpenTK.Input
             }
         }
 
-        internal void SetConnected(bool connected)
+	    public void SetConnected(bool connected)
         {
             is_connected = connected;
         }
 
-        internal void SetTriggers(byte left, byte right)
+	    public void SetTriggers(byte left, byte right)
         {
             left_trigger = left;
             right_trigger = right;
         }
 
-        internal void SetPacketNumber(int number)
+	    public void SetPacketNumber(int number)
         {
             packet_number = number;
         }

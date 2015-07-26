@@ -31,7 +31,7 @@ using System.Text;
 
 namespace OpenTK.Platform
 {
-    internal interface IDisplayDeviceDriver
+	public interface IDisplayDeviceDriver
     {
         bool TryChangeResolution(DisplayDevice device, DisplayResolution resolution);
         bool TryRestoreResolution(DisplayDevice device);

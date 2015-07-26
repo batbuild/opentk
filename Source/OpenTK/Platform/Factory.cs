@@ -35,7 +35,7 @@ namespace OpenTK.Platform
     using Graphics;
     using Input;
 
-    sealed class Factory : IPlatformFactory
+    public sealed class Factory : IPlatformFactory
     {
         #region Fields
 
@@ -57,41 +57,6 @@ namespace OpenTK.Platform
             Toolkit.Init();
 
             // Create regular platform backend
-			#if !__ANDROID__
-            if (Configuration.RunningOnSdl2) Default = new SDL2.Sdl2Factory();
-            else if (Configuration.RunningOnX11) Default = new X11.X11Factory();
-            else if (Configuration.RunningOnLinux) Default = new Linux.LinuxFactory();
-            else if (Configuration.RunningOnWindows) Default = new Windows.WinFactory();
-            else if (Configuration.RunningOnMacOS) Default = new MacOS.MacOSFactory();
-            else Default = new UnsupportedPlatform();
-
-
-            // Create embedded platform backend for EGL / OpenGL ES.
-            // Todo: we could probably delay this until the embedded
-            // factory is actually accessed. This might improve startup
-            // times slightly.
-            if (Configuration.RunningOnSdl2)
-            {
-                // SDL supports both EGL and desktop backends
-                // using the same API.
-                Embedded = Default;
-            }
-            else if (Egl.Egl.IsSupported)
-            {
-                if (Configuration.RunningOnLinux) Embedded = Default;
-                else if (Configuration.RunningOnX11) Embedded = new Egl.EglX11PlatformFactory();
-                else if (Configuration.RunningOnWindows) Embedded = new Egl.EglWinPlatformFactory();
-                else if (Configuration.RunningOnMacOS) Embedded = new Egl.EglMacPlatformFactory();
-                else Embedded = new UnsupportedPlatform();
-            }
-            else
-            {
-                Embedded = new UnsupportedPlatform();
-            }
-
-            if (Default is UnsupportedPlatform && !(Embedded is UnsupportedPlatform))
-                Default = Embedded;
-			#endif
         }
 
         #endregion
@@ -101,7 +66,7 @@ namespace OpenTK.Platform
         public static IPlatformFactory Default
         {
             get { return default_implementation; }
-            private set { default_implementation = value; }
+	        set { default_implementation = value; }
         }
 
         public static IPlatformFactory Embedded

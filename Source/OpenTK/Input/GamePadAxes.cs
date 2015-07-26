@@ -28,7 +28,7 @@ using System;
 namespace OpenTK.Input
 {
     [Flags]
-    internal enum GamePadAxes : byte
+    public enum GamePadAxes : byte
     {
         LeftX = 1 << 0,
         LeftY = 1 << 1,

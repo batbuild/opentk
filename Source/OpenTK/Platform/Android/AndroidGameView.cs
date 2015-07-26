@@ -1,6 +1,8 @@
 ﻿using System;
 using Android.Views;
 using Android.Util;
+using OpenTK.Input;
+using OpenTK.Platform;
 using Size = System.Drawing.Size;
 using System.Threading.Tasks;
 using System.Threading;
@@ -60,6 +62,11 @@ namespace OpenTK.Android
 			// Add callback to get the SurfaceCreated etc events
 			mHolder.AddCallback (this);
 			mHolder.SetType (SurfaceType.Gpu);
+		}
+
+		public void SetPlatformFactory(IPlatformFactory platformFactory)
+		{
+			Factory.Default = platformFactory;
 		}
 
 		public void SurfaceChanged (ISurfaceHolder holder, global::Android.Graphics.Format format, int width, int height)

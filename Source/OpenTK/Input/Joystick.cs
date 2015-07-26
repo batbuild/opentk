@@ -76,8 +76,8 @@ namespace OpenTK.Input
         /// <param name="index">The zero-based index of the device to poll.</param>
         public static JoystickState GetState(int index)
         {
-            return implementation.GetState(index);
-        }
+			return implementation.GetState(index);
+		}
 
         internal static Guid GetGuid(int index)
         {
