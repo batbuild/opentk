@@ -273,9 +273,10 @@
     <Folder Include="Graphics\OpenGL4\" />
     <Folder Include="Platform\Android\" />
   </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Target Name="AfterBuild">
-    <Exec Command="$(OutputPath)..\..\Tools\Debug\Rewrite.exe $(OutputPath)OpenTK.Android.dll ..\..\OpenTK.snk -debug" Condition="$(OS) == 'Windows_NT' and $(Configuration) == 'Debug'" />
-    <Exec Command="$(OutputPath)..\..\Tools\Release\Rewrite.exe $(OutputPath)OpenTK.Android.dll ..\..\OpenTK.snk" Condition="$(OS) == 'Windows_NT' and $(Configuration) != 'Debug'" />
+    <Exec WorkingDirectory="$(SolutionDir)Binaries/OpenTK/Debug" Command="..\..\Tools\Debug\Rewrite.exe $(SolutionDir)Binaries/OpenTK/Debug/OpenTK.Android.dll $(SolutionDir)OpenTK.snk -debug" Condition="$(OS) == 'Windows_NT' and $(Configuration) == 'Debug'" />
+    <Exec WorkingDirectory="$(SolutionDir)Binaries/OpenTK/Release" Command="..\..\Tools\Release\Rewrite.exe $(SolutionDir)Binaries/OpenTK/Release/OpenTK.Android.dll $(SolutionDir)OpenTK.snk" Condition="$(OS) == 'Windows_NT' and $(Configuration) != 'Debug'" />
     <Exec WorkingDirectory="$(SolutionDir)Binaries/Tools/Debug" Command="mono ./Rewrite.exe $(SolutionDir)Binaries/OpenTK/Debug/OpenTK.Android.dll $(SolutionDir)OpenTK.snk -debug" Condition="$(OS) != 'Windows_NT' and $(Configuration) == 'Debug'" />
     <Exec WorkingDirectory="$(SolutionDir)Binaries/Tools/Release" Command="mono ./Rewrite.exe $(SolutionDir)Binaries/OpenTK/Release/OpenTK.Android.dll $(SolutionDir)OpenTK.snk" Condition="$(OS) != 'Windows_NT' and $(Configuration) != 'Debug'" />
   </Target>
