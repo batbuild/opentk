@@ -20,7 +20,7 @@ let projectDescription = "OpenTk for Duality running on full openGL on Android"
 let projectSummary = projectDescription // TODO: write a summary
 let androidSolutionName = "OpenTK.android.sln"
 let projectPath = "Source/OpenTK/OpenTK.Android.csproj"
-let solutionConfig = "Debug"
+let solutionConfig = "Release"
 let buildMode = getBuildParamOrDefault "buildMode" solutionConfig
 
 MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some MSBuildVerbosity.Detailed }

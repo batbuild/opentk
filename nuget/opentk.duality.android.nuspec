@@ -15,6 +15,5 @@
     </metadata>
 	<files>
 		<file src="OpenTK.Android.dll" target="lib\MonoAndroid\OpenTK.Android.dll" />
-		<file src="OpenTK.Android.dll.mdb" target="lib\MonoAndroid\OpenTK.Android.dll.mdb" />
 	</files>
 </package>

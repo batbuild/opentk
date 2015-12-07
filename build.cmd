@@ -11,7 +11,7 @@ SET TARGET="android-pack"
 
 IF NOT [%1]==[] (set TARGET="%1")
 
-SET BUILDMODE="Debug"
+SET BUILDMODE="Release"
 
 IF NOT [%2]==[] (set BUILDMODE="%2")
 
